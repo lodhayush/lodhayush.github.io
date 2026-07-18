@@ -35,17 +35,19 @@ details in `_data/cv.yml` were filled in from `assets/pdf/Ayush_Lodh_CV.pdf`.
 ## Deploy status (as of 2026-07-19)
 
 1. ✅ Repo `lodhayush/lodhayush.github.io` created; site pushed to `main`.
-2. ✅ Deploy workflow builds into `gh-pages`; GitHub Pages serves that branch,
-   and the `CNAME` file set the custom domain (lodhayush.github.io now
-   301-redirects to ayushlodh.com).
-3. ⬜ **DNS for ayushlodh.com** (at the domain registrar) — the only step left
+2. ✅ Every push to `main` builds and deploys straight to GitHub Pages via
+   Actions (Settings → Pages source shows "GitHub Actions", configured
+   automatically by the deploy workflow — no branch setup needed).
+3. ✅ Custom domain `ayushlodh.com` is set on the Pages site
+   (lodhayush.github.io 301-redirects to it).
+4. ⬜ **DNS for ayushlodh.com** (at the domain registrar) — the only step left
    to make the site reachable:
    - Apex `ayushlodh.com` → four **A records**: `185.199.108.153`,
      `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
    - `www` → **CNAME record** pointing to `lodhayush.github.io`
-4. ⬜ After DNS propagates: **Settings → Pages** → wait for the DNS check,
+5. ⬜ After DNS propagates: **Settings → Pages** → wait for the DNS check,
    then tick **Enforce HTTPS**.
-5. Visit https://ayushlodh.com 🎉
+6. Visit https://ayushlodh.com 🎉
 
 ## Notes
 
