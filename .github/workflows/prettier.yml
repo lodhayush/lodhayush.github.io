@@ -26,12 +26,15 @@ jobs:
         run: npm install --save-dev --save-exact prettier @shopify/prettier-plugin-liquid
       - name: Prettier Check 🔎
         id: prettier
+        # On pushes a failed check is not fatal — the auto-format step below
+        # fixes main and the run stays green. PRs still fail visibly.
+        continue-on-error: ${{ github.event_name == 'push' }}
         run: npx prettier . --check
       - name: Auto-format and commit 🤖
         # No Node.js on the maintainer's machine, so on a failed check CI
         # formats main itself. Pushes made with GITHUB_TOKEN do not retrigger
         # workflows, so this cannot loop.
-        if: ${{ failure() && steps.prettier.conclusion == 'failure' && github.event_name == 'push' }}
+        if: ${{ steps.prettier.outcome == 'failure' && github.event_name == 'push' }}
         run: |
           npx prettier . --write
           git checkout -- package.json package-lock.json
