@@ -10,6 +10,9 @@ on:
       - master
       - main
 
+permissions:
+  contents: write
+
 jobs:
   check:
     # available images: https://github.com/actions/runner-images#available-images
@@ -24,9 +27,22 @@ jobs:
       - name: Prettier Check 🔎
         id: prettier
         run: npx prettier . --check
+      - name: Auto-format and commit 🤖
+        # No Node.js on the maintainer's machine, so on a failed check CI
+        # formats main itself. Pushes made with GITHUB_TOKEN do not retrigger
+        # workflows, so this cannot loop.
+        if: ${{ failure() && steps.prettier.conclusion == 'failure' && github.event_name == 'push' }}
+        run: |
+          npx prettier . --write
+          git checkout -- package.json package-lock.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "style: Format code with Prettier"
+          git push
       - name: Create diff 📝
         # https://docs.github.com/en/actions/learn-github-actions/expressions#failure
-        if: ${{ failure() }}
+        if: ${{ failure() && steps.prettier.conclusion == 'failure' && github.event_name == 'pull_request' }}
         run: |
           npx prettier . --write
           git diff -- . ':(exclude)package-lock.json' ':(exclude)package.json' > diff.txt
@@ -34,7 +50,7 @@ jobs:
           diff2html -i file -s side -F diff.html -- diff.txt
       - name: Upload html diff ⬆️
         id: artifact-upload
-        if: ${{ failure() && steps.prettier.conclusion == 'failure' }}
+        if: ${{ failure() && steps.prettier.conclusion == 'failure' && github.event_name == 'pull_request' }}
         uses: actions/upload-artifact@v4
         with:
           name: HTML Diff
