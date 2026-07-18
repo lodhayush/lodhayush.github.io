@@ -1,0 +1,12 @@
+# Style the venue badge (the `abbr` field in papers.bib entries).
+# `url` makes the badge a link; `color` sets its background.
+
+"ACPR":
+  color: "#4f8ef7"
+
+"ICDAR":
+  color: "#5cc88a"
+
+"arXiv":
+  url: https://arxiv.org/
+  color: "#b31b1b"

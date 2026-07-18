@@ -1,0 +1,14 @@
+# Map coauthor last names to their websites. Matching author names in the
+# publications list become clickable links.
+
+"pal":
+  - firstname: ["Umapada", "U."]
+    url: https://www.isical.ac.in/~umapada/
+
+"das":
+  - firstname: ["Alloy", "A."]
+    url: https://alloydas.github.io/
+
+"jawahar":
+  - firstname: ["C. V.", "C.V.", "C."]
+    url: https://faculty.iiit.ac.in/~jawahar/

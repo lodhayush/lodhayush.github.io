@@ -1,0 +1,10 @@
+# GitHub users and repositories shown on the /repositories/ page.
+github_users:
+  - lodhayush
+
+repo_description_lines_max: 2
+
+github_repos:
+  - lodhayush/HATChar-Classifier
+  # add more repos here as they become public, e.g.:
+  # - lodhayush/lodhayush.github.io

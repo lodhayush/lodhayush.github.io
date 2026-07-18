@@ -1,0 +1,39 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# News shown on the About page and the /news/ archive.
+# To add an item, copy a block below. Items are auto-sorted newest-first by date.
+#   date:   "YYYY-MM-DD"
+#   inline: an HTML string (supports <strong>, <a href>, emoji, etc.)
+# ─────────────────────────────────────────────────────────────────────────────
+
+- date: "2026-05-25"
+  inline: >
+    🎉 <strong>NoTeS-Bank</strong> has been accepted at
+    <a href="https://ecmlpkdd.org/2026/">ECML PKDD 2026</a>!
+    [<a href="https://arxiv.org/abs/2504.09249">arXiv</a>]
+
+- date: "2025-11-10"
+  inline: >
+    📄 My first-author paper <strong>A Transformer Based Handwriting Recognition System
+    Jointly Using Online and Offline Features</strong> is out in the
+    <a href="https://doi.org/10.1007/978-981-95-4395-3_18">ACPR 2025 proceedings</a>!
+
+- date: "2025-09-15"
+  inline: >
+    🏆 Our <strong>Handwritten Notes Understanding Challenge</strong> paper was presented at
+    <a href="https://doi.org/10.1007/978-3-032-04630-7_32">ICDAR 2025</a>.
+
+- date: "2025-04-12"
+  inline: >
+    🚀 <strong>NoTeS-Bank</strong> — our benchmark for neural transcription and search over
+    scientific notes — is now on <a href="https://arxiv.org/abs/2504.09249">arXiv</a>!
+
+- date: "2025-12-01" # approximate day — internship ran Dec 2025 to Mar 2026 per the CV
+  inline: >
+    🌍 Started a remote research internship at the
+    <a href="https://www.cvc.uab.es/">Computer Vision Center</a> (UAB, Barcelona),
+    working on multimodal RAG over document images with Dr. Sanket Biswas and Dr. Josep Lladós.
+
+- date: "2025-08-01" # approximate day — M.Tech started in 2025 per the CV
+  inline: >
+    🎓 Started my Master's in Computer Science & Engineering at
+    <a href="https://nitdelhi.ac.in/">NIT Delhi</a>.

@@ -1,0 +1,134 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# CV data rendered on the /cv/ page (cv_format: rendercv in _pages/cv.md).
+# Add, remove, or reorder sections freely — each key under `sections:` becomes
+# a heading on the page. Dates can be years ("2024") or "YYYY-MM" (only the
+# year is displayed). Populated from assets/pdf/Ayush_Lodh_CV.pdf.
+# ─────────────────────────────────────────────────────────────────────────────
+cv:
+  name: Ayush Lodh
+  label: Master's Student in Computer Science & Engineering
+  email: ayushlodh26@gmail.com
+  location: New Delhi, India
+  image: ""
+  summary: >
+    Master's student at NIT Delhi researching computer vision, deep learning, and
+    pattern recognition, with a focus on handwriting recognition and document
+    understanding. Author of peer-reviewed papers at ACPR 2025 and ICDAR 2025;
+    past research intern at CVPRU (ISI Kolkata) and the Computer Vision Center
+    (UAB, Barcelona).
+
+  social_networks:
+    - network: GitHub
+      username: lodhayush
+    - network: LinkedIn
+      username: ayush-lodh
+
+  address:
+    city: New Delhi
+    region: Delhi
+    countryCode: IN
+
+  sections:
+    Education:
+      - institution: National Institute of Technology Delhi
+        location: New Delhi, India
+        url: https://nitdelhi.ac.in/
+        area: Computer Science & Engineering (Analytics)
+        studyType: M.Tech
+        start_date: "2025"
+        end_date: present
+        highlights:
+          - "CGPA: 7.5/10"
+          - "Advisor: Prof. Dr. Nisha Singh Chauhan"
+          - "Ongoing project: *From Chunks to Graphs*, co-advised by Dr. Sanket Biswas (CVC, UAB)"
+          - "Coursework: Data Mining and Warehousing, Deep Learning, Advanced Databases"
+
+      - institution: University Institute of Technology, The University of Burdwan
+        location: Burdwan, India
+        area: Information Technology
+        studyType: B.E.
+        start_date: "2020"
+        end_date: "2024"
+        highlights:
+          - "CGPA: 8.79/10"
+          - "Final-year project: *3D Playfair Cipher with Dual Key* (advisor: Ms. Nabanita Das)"
+          - "Coursework: Image Processing, Artificial Intelligence, Machine Learning"
+
+    Experience:
+      - company: Computer Vision Center, Universitat Autònoma de Barcelona
+        position: Research Intern
+        location: Barcelona, Spain (remote)
+        url: https://www.cvc.uab.es/
+        start_date: "2025-12"
+        end_date: "2026-03"
+        highlights:
+          - "Worked on multimodal retrieval-augmented generation with graph neural networks over enterprise document images, advised by Dr. Sanket Biswas and Dr. Josep Lladós"
+          - "Developed *From Chunks to Graphs*, a training-free multimodal retrieval framework that replaces chunk-based selection with structure-aware subgraph retrieval over Doc2Graph representations, improving factual consistency on document VQA over text-RAG baselines"
+
+      - company: Habitat Lens Private Limited
+        position: Junior AI Engineer
+        location: Kolkata, India
+        start_date: "2024-05"
+        end_date: "2024-07"
+        highlights:
+          - "Worked on handwritten document images and annotation pipelines for AI solutions"
+          - "Co-developed *NoTeS-Bank*, a benchmark for neural transcription and search over handwritten scientific notes, working with Alloy Das (arXiv:2504.09249)"
+
+      - company: Computer Vision & Pattern Recognition Unit (CVPRU), Indian Statistical Institute
+        position: Research Intern
+        location: Kolkata, India
+        url: https://cvpru.isical.ac.in/
+        start_date: "2024-02"
+        end_date: "2024-04"
+        highlights:
+          - "Worked on online and offline handwritten text recognition from live camera feeds, advised by Prof. Umapada Pal"
+          - "Proposed an end-to-end transformer for writer-independent handwriting recognition fusing offline image patches and online stroke tokens via learnable latent queries — published at ACPR 2025 (first author)"
+
+    Skills:
+      - name: Computer Vision & Document AI
+        level: Advanced
+        icon: fa-solid fa-eye
+        keywords: ["Handwriting Recognition", "Document Understanding", "Multimodal RAG", "Visual Question Answering"]
+
+      - name: Deep Learning
+        level: Advanced
+        icon: fa-solid fa-brain
+        keywords: ["PyTorch", "TensorFlow", "Transformers", "Vision-Language Models", "Graph Neural Networks"]
+
+      - name: Programming
+        level: Advanced
+        icon: fa-solid fa-code
+        keywords: ["Python", "C/C++", "Git", "Linux"]
+
+      - name: Documentation
+        icon: fa-solid fa-file-lines
+        keywords: ["LaTeX", "MS Office"]
+
+    Certificates:
+      - name: Problem Solving through Programming in C
+        issuer: NPTEL · IIT Kharagpur
+        date: "2022"
+        icon: fa-solid fa-certificate
+      - name: An Introduction to Programming through C++
+        issuer: NPTEL · IIT Bombay
+        date: "2022"
+        icon: fa-solid fa-certificate
+      - name: Programming, Data Structures and Algorithms Using Python
+        issuer: NPTEL · IIT Madras
+        date: "2023"
+        icon: fa-solid fa-certificate
+      - name: Machine Learning and Deep Learning — Fundamentals and Applications
+        issuer: NPTEL · IIT Guwahati
+        date: "2023"
+        icon: fa-solid fa-certificate
+
+    Languages:
+      - name: Bengali
+        summary: Native
+        icon: fa-solid fa-language
+      - name: English
+        summary: Fluent
+        icon: fa-solid fa-language
+      - name: Hindi
+        summary: Fluent
+        icon: fa-solid fa-language
