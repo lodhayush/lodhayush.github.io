@@ -17,7 +17,7 @@ footer_text: >
 
 icon: 🎓 # the emoji used as the favicon (alternatively, provide image name in /assets/img/)
 
-url: https://ayushlodh.com # custom domain (CNAME file in repo root)
+url: https://lodhayush.github.io # free GitHub Pages URL (user site; no CNAME)
 baseurl: ""
 last_updated: true
 impressum_path: # set to path to include impressum link in footer
@@ -115,7 +115,6 @@ exclude:
   - TROUBLESHOOTING.md
 
 keep_files:
-  - CNAME
   - .nojekyll
   - .git
 

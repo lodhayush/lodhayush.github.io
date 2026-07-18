@@ -38,16 +38,13 @@ details in `_data/cv.yml` were filled in from `assets/pdf/Ayush_Lodh_CV.pdf`.
 2. ✅ Every push to `main` builds and deploys straight to GitHub Pages via
    Actions (Settings → Pages source shows "GitHub Actions", configured
    automatically by the deploy workflow — no branch setup needed).
-3. ✅ Custom domain `ayushlodh.com` is set on the Pages site
-   (lodhayush.github.io 301-redirects to it).
-4. ⬜ **DNS for ayushlodh.com** (at the domain registrar) — the only step left
-   to make the site reachable:
-   - Apex `ayushlodh.com` → four **A records**: `185.199.108.153`,
-     `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
-   - `www` → **CNAME record** pointing to `lodhayush.github.io`
-5. ⬜ After DNS propagates: **Settings → Pages** → wait for the DNS check,
-   then tick **Enforce HTTPS**.
-6. Visit https://ayushlodh.com 🎉
+3. ✅ Served at the free GitHub Pages URL **https://lodhayush.github.io**
+   (no custom domain — the `CNAME` file was removed and `url:` in
+   `_config.yml` points at the github.io address).
+
+> Using a custom domain later? Re-add a `CNAME` file with the domain, set
+> `url:` to match, add the DNS records at the registrar, and enable it under
+> Settings → Pages.
 
 ## Notes
 

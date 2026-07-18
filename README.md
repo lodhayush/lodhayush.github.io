@@ -1,8 +1,8 @@
-# ayushlodh.com
+# lodhayush.github.io
 
 Personal academic website of **Ayush Lodh** — Master's student in Computer Science & Engineering at NIT Delhi, advised by Dr. Nisha Singh Chauhan.
 
-🔗 **Live:** https://ayushlodh.com
+🔗 **Live:** https://lodhayush.github.io
 
 ## About
 
