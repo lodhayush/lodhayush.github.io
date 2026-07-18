@@ -25,7 +25,7 @@ chart:
   echarts: true # needed for the "Research at a Glance" charts below
 ---
 
-I am a Master's student in the [Department of Computer Science & Engineering](https://nitdelhi.ac.in/) at **National Institute of Technology Delhi**, working under the supervision of [Dr. Nisha Singh Chauhan](https://faculty.nitdelhi.ac.in/NishaSinghChauhan/profile).
+I am a Master's student in the [Department of Computer Science & Engineering](https://cse.nitdelhi.ac.in/) at **National Institute of Technology Delhi**, working under the supervision of [Dr. Nisha Singh Chauhan](https://faculty.nitdelhi.ac.in/NishaSinghChauhan/profile).
 
 My research interests lie in **computer vision**, **deep learning**, and **pattern recognition**, with a particular focus on **handwriting recognition** and **document understanding**. My recent work includes:
 
