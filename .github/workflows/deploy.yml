@@ -91,6 +91,11 @@ jobs:
         run: |
           npm install -g purgecss
           purgecss -c purgecss.config.js
+      - name: Disable Pages' internal Jekyll build 🚫
+        # gh-pages holds the already-built site; .nojekyll makes GitHub Pages
+        # serve it as-is instead of re-running Jekyll on it (which fails on
+        # the raw Liquid inside copied markdown docs).
+        run: touch _site/.nojekyll
       - name: Deploy 🚀
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4

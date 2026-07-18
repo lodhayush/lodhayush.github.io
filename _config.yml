@@ -89,15 +89,30 @@ kramdown:
 # Includes & excludes
 include: ["_pages"]
 exclude:
+  - AGENTS.md
+  - ANALYTICS.md
   - bin/
+  - CLAUDE.md
   - CONTRIBUTING.md
   - CUSTOMIZE.md
-  - Dockerfile
+  - docker-compose-slim.yml
   - docker-compose.yml
+  - Dockerfile
+  - FAQ.md
+  - INSTALL.md
   - LICENSE
+  - package-lock.json
+  - package.json
+  - PERSONALIZE.md
+  - purgecss.config.js
+  - QUICKSTART.md
+  - readme_preview/
   - README.md
   - renovate.json
+  - requirements.txt
   - scripts/
+  - SEO.md
+  - TROUBLESHOOTING.md
 
 keep_files:
   - CNAME
