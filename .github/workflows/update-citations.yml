@@ -7,6 +7,13 @@ on:
     - cron: "0 0 * * 5" # Friday
   workflow_dispatch:
 
+# The job commits refreshed citation counts back to the repo, so GITHUB_TOKEN
+# needs write access. This repo's default token is read-only, which made the
+# "Commit and push if changed" step fail with 403 on every run where the counts
+# actually changed (runs with no change skipped the push and looked green).
+permissions:
+  contents: write
+
 jobs:
   update-citations:
     runs-on: ubuntu-latest
