@@ -87,13 +87,15 @@ I have collaborated with the [Computer Vision and Pattern Recognition Unit (CVPR
   "tooltip": {},
   "radar": {
     "indicator": [
-      { "name": "Computer Vision", "max": 10 },
-      { "name": "Deep Learning", "max": 10 },
-      { "name": "Handwriting Recognition", "max": 10 },
-      { "name": "Document Understanding", "max": 10 },
-      { "name": "Multimodal / VQA", "max": 10 }
+      { "name": "Computer\nVision", "max": 10 },
+      { "name": "Deep\nLearning", "max": 10 },
+      { "name": "Handwriting\nRecognition", "max": 10 },
+      { "name": "Document\nUnderstanding", "max": 10 },
+      { "name": "Multimodal\nVQA", "max": 10 }
     ],
-    "radius": "65%"
+    "radius": "52%",
+    "axisNameGap": 8,
+    "axisName": { "fontSize": 11, "lineHeight": 13 }
   },
   "series": [
     {
