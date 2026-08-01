@@ -1,6 +1,10 @@
 # GitHub users and repositories shown on the /repositories/ page.
-github_users:
-  - lodhayush
+
+# The "GitHub users" profile-card section is switched off. The key must stay
+# absent rather than empty: an empty list is truthy in Liquid, so the heading
+# would still render with no card under it. Uncomment both lines to restore it.
+# github_users:
+#   - lodhayush
 
 repo_description_lines_max: 2
 
