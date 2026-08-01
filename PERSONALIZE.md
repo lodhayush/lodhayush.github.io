@@ -63,6 +63,16 @@ details in `_data/cv.yml` were filled in from `assets/pdf/Ayush_Lodh_CV.pdf`.
   each publication shows the number (toggle `enable_publication_badges.citations`
   in `_config.yml`). New papers are picked up automatically once they are added
   to `_bibliography/papers.bib` and indexed by either API.
+- The **Repositories** page renders cards with GitHub's own OpenGraph card
+  service (`opengraph.githubassets.com`). The theme originally used
+  github-readme-stats and github-profile-trophy, but their public demo
+  instances are paused/disabled (503 and 402), and `_config.yml` was also
+  missing the `external_services` block those includes need — so every card was
+  a broken image. Trophies are disabled for the same reason. To restore the
+  original look, self-host github-readme-stats and set
+  `external_services.github_readme_stats_url` in `_config.yml`.
+- Add repos to show by listing them under `github_repos:` in
+  `_data/repositories.yml`.
 - The Blog page was removed by design. Books/Teaching/People theme pages were
   removed too; restore them from [al-folio](https://github.com/alshedivat/al-folio)
   if ever needed.

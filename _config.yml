@@ -16,6 +16,7 @@ footer_text: >
   with the <a href="https://github.com/alshedivat/al-folio" target="_blank">al-folio</a> theme.
 
 icon: 🎓 # the emoji used as the favicon (alternatively, provide image name in /assets/img/)
+lang: en # renders as <html lang="..."> — was blank, which hurts screen readers and SEO
 
 url: https://lodhayush.github.io # free GitHub Pages URL (user site; no CNAME)
 baseurl: ""
@@ -223,8 +224,11 @@ enable_video_embedding: false
 
 repo_theme_light: default
 repo_theme_dark: dark
+# Trophies come from github-profile-trophy.vercel.app, whose public instance is
+# disabled (HTTP 402), so every trophy image 404'd. Re-enable only alongside a
+# self-hosted instance via external_services.github_profile_trophy_url.
 repo_trophies:
-  enabled: true
+  enabled: false
   theme_light: flat
   theme_dark: gitdimmed
 
