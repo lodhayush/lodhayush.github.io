@@ -180,6 +180,7 @@ display_years:
 # Badges (shown on publication cards)
 enable_publication_badges:
   altmetric: true
+  citations: true # counts from _data/citations.yml (OpenAlex/Crossref, refreshed by CI)
   dimensions: true
   inspirehep: false
 

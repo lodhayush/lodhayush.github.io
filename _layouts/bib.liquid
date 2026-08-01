@@ -279,7 +279,17 @@
       {% if entry.inspirehep_id %}
         {% assign entry_has_inspirehep_badge = true %}
       {% endif %}
-      {% if entry_has_altmetric_badge or entry_has_dimensions_badge or entry_has_google_scholar_badge or entry_has_inspirehep_badge %}
+
+      {% comment %}
+        Citation counts come from _data/citations.yml, refreshed by
+        .github/workflows/update-citations.yml and keyed by BibTeX cite key.
+      {% endcomment %}
+      {% assign entry_citations = site.data.citations.papers[entry.key] %}
+      {% assign entry_has_citations_badge = false %}
+      {% if entry_citations %}
+        {% assign entry_has_citations_badge = true %}
+      {% endif %}
+      {% if entry_has_altmetric_badge or entry_has_dimensions_badge or entry_has_google_scholar_badge or entry_has_inspirehep_badge or entry_has_citations_badge %}
         <div class="badges">
           {% if site.enable_publication_badges.altmetric and entry_has_altmetric_badge %}
             <span
@@ -343,6 +353,22 @@
               <img
                 src="https://img.shields.io/badge/scholar-{{ citation_count }}-4285F4?logo=googlescholar&labelColor=beige"
                 alt="{{ citation_count }} Google Scholar citations"
+              >
+            </a>
+          {% endif %}
+          {% if site.enable_publication_badges.citations and entry_has_citations_badge %}
+            {% if entry.doi %}
+              {% assign citations_url = 'https://doi.org/' | append: entry.doi %}
+            {% elsif entry.arxiv %}
+              {% assign citations_url = 'https://arxiv.org/abs/' | append: entry.arxiv %}
+            {% else %}
+              {% assign citations_url = entry.html %}
+            {% endif %}
+            <a href="{{ citations_url }}" aria-label="Citation count" role="button">
+              <img
+                src="https://img.shields.io/badge/citations-{{ entry_citations.citations }}-4285F4?labelColor=beige"
+                alt="{{ entry_citations.citations }} citations (source: {{ entry_citations.source }})"
+                title="{{ entry_citations.citations }} citations — source: {{ entry_citations.source }}"
               >
             </a>
           {% endif %}

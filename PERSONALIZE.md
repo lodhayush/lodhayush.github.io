@@ -54,9 +54,15 @@ details in `_data/cv.yml` were filled in from `assets/pdf/Ayush_Lodh_CV.pdf`.
   **deliberately left out** of the website pages (`_data/cv.yml` lists only
   city-level location). The PDF itself is public once deployed — swap in a
   redacted version if that is a concern.
-- Citation counts auto-update 3×/week from Google Scholar via
-  `.github/workflows/update-citations.yml` (already enabled — Scholar ID is
-  configured).
+- Citation counts auto-update 3×/week via
+  `.github/workflows/update-citations.yml`, which runs `bin/update_citations.py`
+  and writes `_data/citations.yml` (keyed by BibTeX cite key). Counts come from
+  the **OpenAlex** and **Crossref** APIs — not Google Scholar, which has no API
+  and blocks CI runners, so the old `scholarly` scrape never populated anything.
+  Each paper takes the highest count any source reports. A "citations" badge on
+  each publication shows the number (toggle `enable_publication_badges.citations`
+  in `_config.yml`). New papers are picked up automatically once they are added
+  to `_bibliography/papers.bib` and indexed by either API.
 - The Blog page was removed by design. Books/Teaching/People theme pages were
   removed too; restore them from [al-folio](https://github.com/alshedivat/al-folio)
   if ever needed.
