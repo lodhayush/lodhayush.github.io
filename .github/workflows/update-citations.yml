@@ -1,4 +1,4 @@
-name: Update Google Scholar Citations
+name: Update Citation Counts
 
 on:
   schedule:
@@ -52,21 +52,14 @@ jobs:
       - name: Run citation update script
         id: run_citation_update
         shell: bash
+        # Failures are no longer swallowed: the script queries real APIs
+        # (OpenAlex, Crossref) that serve CI runners, retries each request,
+        # and only exits non-zero when no source could be reached for any
+        # paper at all — which is a genuine breakage worth surfacing.
         run: |
-          set +e
-          echo "🚀 Running citation update script (single attempt)..."
-          start_time=$(date)
-          timeout 90 python bin/update_scholar_citations.py
-          status=$?
-          end_time=$(date)
-          if [ $status -eq 0 ]; then
-            echo "✅ Citation update succeeded (started at $start_time, ended at $end_time)."
-            echo "✅ Citation update succeeded." >> $GITHUB_STEP_SUMMARY
-          else
-            echo "❌ Citation update script failed with exit code $status (started at $start_time, ended at $end_time)."
-            echo "❌ Citation update script failed with exit code $status." >> $GITHUB_STEP_SUMMARY
-          fi
-          set -e
+          echo "🚀 Fetching citation counts..."
+          timeout 300 python bin/update_citations.py
+          echo "✅ Citation update succeeded." >> $GITHUB_STEP_SUMMARY
 
       - name: Save new citations.yml hash
         id: after
