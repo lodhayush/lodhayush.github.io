@@ -2,7 +2,7 @@
 # Sources: OpenAlex and Crossref (Google Scholar has no API and blocks CI).
 # Keyed by BibTeX cite key from _bibliography/papers.bib.
 metadata:
-  last_updated: '2026-08-01'
+  last_updated: '2026-09-07'
 papers:
   lodh2025transformer:
     citations: 1
@@ -10,7 +10,7 @@ papers:
     title: A Transformer Based Handwriting Recognition System Jointly Using Online and Offline Features
     year: '2025'
   pal2025icdar:
-    citations: 1
+    citations: 2
     source: crossref
     title: ICDAR 2025 Handwritten Notes Understanding Challenge
     year: '2025'
