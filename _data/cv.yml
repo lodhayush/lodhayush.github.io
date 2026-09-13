@@ -56,24 +56,6 @@ cv:
           - "Final-year project: *3D Playfair Cipher with Dual Key* (advisor: Ms. Nabanita Das)"
           - "Coursework: Image Processing, Artificial Intelligence, Machine Learning"
 
-      - institution: D.A.V. Public School (CBSE)
-        location: Asansol, India
-        area: Higher Secondary Examination
-        studyType: Class XII
-        start_date: "2018"
-        end_date: "2020"
-        highlights:
-          - "Percentage: 81.8%"
-
-      - institution: D.A.V. Public School (CBSE)
-        location: Asansol, India
-        area: Secondary Examination
-        studyType: Class X
-        start_date: "2018"
-        end_date: "2018"
-        highlights:
-          - "Percentage: 84.2%"
-
     Experience:
       - company: Computer Vision Center, Universitat Autònoma de Barcelona
         position: Research Intern
