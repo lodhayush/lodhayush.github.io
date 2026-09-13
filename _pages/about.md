@@ -5,6 +5,7 @@ permalink: /
 subtitle: >
   Master's Student · <a href="https://nitdelhi.ac.in/">NIT Delhi</a> ·
   Advised by <a href="https://faculty.nitdelhi.ac.in/NishaSinghChauhan/profile">Dr. Nisha Singh Chauhan</a>
+  and <a href="https://scholar.google.com/citations?user=J-VlCNYAAAAJ">Dr. Sanket Biswas</a>
 
 news: true
 announcements:
@@ -17,7 +18,7 @@ chart:
   echarts: true # needed for the "Research at a Glance" charts below (timeline data: _plugins/pub-stats.rb)
 ---
 
-I am a Master's student in the [Department of Computer Science & Engineering](https://cse.nitdelhi.ac.in/) at **National Institute of Technology Delhi**, working under the supervision of [Dr. Nisha Singh Chauhan](https://faculty.nitdelhi.ac.in/NishaSinghChauhan/profile).
+I am a Master's student in the [Department of Computer Science & Engineering](https://cse.nitdelhi.ac.in/) at **National Institute of Technology Delhi**, working under the supervision of [Dr. Nisha Singh Chauhan](https://faculty.nitdelhi.ac.in/NishaSinghChauhan/profile) and co-supervised by [Dr. Sanket Biswas](https://scholar.google.com/citations?user=J-VlCNYAAAAJ) ([Computer Vision Center](https://www.cvc.uab.es/), UAB, Barcelona).
 
 My research spans **computer vision**, **deep learning**, and **pattern recognition**, with a particular focus on **handwriting recognition** and **document understanding**. My recent work includes:
 

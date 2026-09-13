@@ -40,8 +40,8 @@ cv:
         end_date: present
         highlights:
           - "CGPA: 7.5/10"
-          - "Advisor: Prof. Dr. Nisha Singh Chauhan"
-          - "Project: *From Chunks to Graphs*, co-advised by Dr. Sanket Biswas (CVC, UAB) — published at ICDAR 2026 (first author)"
+          - "Advisors: Prof. Dr. Nisha Singh Chauhan (NIT Delhi) and Dr. Sanket Biswas (CVC, UAB, co-supervisor)"
+          - "Project: *From Chunks to Graphs* — published at ICDAR 2026 (first author)"
           - "Coursework: Data Mining and Warehousing, Deep Learning, Advanced Databases"
 
       - institution: University Institute of Technology, The University of Burdwan
