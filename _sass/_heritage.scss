@@ -301,6 +301,19 @@ html[data-theme="dark"] footer.sticky-bottom::before {
   }
 }
 
+.site-sidebar .sidebar-email {
+  overflow-wrap: anywhere;
+
+  a {
+    color: $cream;
+
+    &:hover {
+      color: $saffron;
+      text-decoration: none;
+    }
+  }
+}
+
 .sidebar-social {
   display: flex;
   flex-wrap: wrap;

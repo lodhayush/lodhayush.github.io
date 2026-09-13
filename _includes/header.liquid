@@ -84,6 +84,11 @@
         {% if site.sidebar_location %}
           <p class="sidebar-location"><i class="fa-solid fa-location-dot" aria-hidden="true"></i>{{ site.sidebar_location }}</p>
         {% endif %}
+        {% if site.data.socials.email %}
+          <p class="sidebar-location sidebar-email">
+            <i class="fa-solid fa-envelope" aria-hidden="true"></i><a href="mailto:{{ site.data.socials.email }}">{{ site.data.socials.email }}</a>
+          </p>
+        {% endif %}
         <div class="sidebar-social">{% social_links %}</div>
         {% if site.enable_darkmode %}
           <!-- Toggle theme mode -->
