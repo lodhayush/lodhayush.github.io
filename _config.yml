@@ -6,6 +6,9 @@ title: Ayush Lodh (আযুষ)
 first_name: Ayush
 middle_name:
 last_name: Lodh
+native_name: আযুষ # Bengali name shown in the sidebar
+sidebar_tagline: Handwriting · Documents · Vision
+sidebar_location: New Delhi, India
 email: ayushlodh26@gmail.com
 description: >
   Master's student in Computer Science & Engineering at NIT Delhi.
@@ -215,7 +218,7 @@ enable_tooltips: false
 enable_katex: false
 enable_project_categories: true
 enable_medium_zoom: true
-enable_progressbar: true
+enable_progressbar: false # the progress bar pads the page for a top navbar, which the sidebar layout replaces
 enable_video_embedding: false
 
 # -----------------------------------------------------------------------------
@@ -278,7 +281,7 @@ third_party_libraries:
     version: "5.5.0"
   google_fonts:
     url:
-      fonts: "https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&display=swap"
+      fonts: "https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@500;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Material+Icons&display=swap"
   highlightjs:
     integrity:
       css:

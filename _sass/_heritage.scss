@@ -1,0 +1,422 @@
+/*******************************************************************************
+ * Heritage theme: a fixed profile sidebar with Bengali (alpona) accents.
+ * Loaded last in assets/css/main.scss, so it overrides the base theme tokens.
+ * Desktop (>= 992px): fixed left sidebar. Smaller screens: sticky top bar with
+ * a collapsible menu.
+ ******************************************************************************/
+
+$sidebar-width: 17.5rem;
+$desktop: 992px;
+
+$indigo: #1f1a4d;
+$indigo-deep: #0e0c22;
+$cream: #fbf3e4;
+$paper: #fffaf1;
+$ink: #231c16;
+$muted: #6f6254;
+$vermilion: #b93a14;
+$vermilion-soft: #f29a6b;
+$saffron: #e8a33d;
+
+$font-body: "Source Sans 3", "Noto Serif Bengali", system-ui, -apple-system, "Segoe UI", sans-serif;
+$font-serif: "Source Serif 4", "Noto Serif Bengali", Georgia, serif;
+$font-bengali: "Noto Serif Bengali", "Source Serif 4", Georgia, serif;
+
+// Alpona border motif (ring + petal), in saffron and vermilion
+$alpona-saffron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='14' viewBox='0 0 28 14'%3E%3Ccircle cx='7' cy='7' r='3' fill='none' stroke='%23e8a33d' stroke-width='1.2'/%3E%3Ccircle cx='7' cy='7' r='0.9' fill='%23e8a33d'/%3E%3Cpath d='M17 7c2-3 5-3 7 0c-2 3-5 3-7 0z' fill='none' stroke='%23e8a33d' stroke-width='1.1'/%3E%3C/svg%3E");
+$alpona-vermilion: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='14' viewBox='0 0 28 14'%3E%3Ccircle cx='7' cy='7' r='3' fill='none' stroke='%23b93a14' stroke-width='1.2'/%3E%3Ccircle cx='7' cy='7' r='0.9' fill='%23b93a14'/%3E%3Cpath d='M17 7c2-3 5-3 7 0c-2 3-5 3-7 0z' fill='none' stroke='%23b93a14' stroke-width='1.1'/%3E%3C/svg%3E");
+
+/* Theme tokens ---------------------------------------------------------------*/
+
+:root {
+  --global-bg-color: #{$cream};
+  --global-card-bg-color: #{$paper};
+  --global-text-color: #{$ink};
+  --global-text-color-light: #{$muted};
+  --global-theme-color: #{$vermilion};
+  --global-hover-color: #{$indigo};
+  --global-hover-text-color: #{$cream};
+  --global-divider-color: rgba(31, 26, 77, 0.14);
+  --global-code-bg-color: rgba(185, 58, 20, 0.06);
+  --global-footer-bg-color: #{$indigo};
+  --global-footer-text-color: #{$cream};
+  --global-footer-link-color: #{$saffron};
+  --global-back-to-top-bg-color: rgba(31, 26, 77, 0.6);
+  --heritage-heading-color: #{$indigo};
+  --heritage-sidebar-bg: #{$indigo};
+}
+
+html[data-theme="dark"] {
+  --global-bg-color: #15122e;
+  --global-card-bg-color: #1d1940;
+  --global-text-color: #efe6d6;
+  --global-text-color-light: #a99f8f;
+  --global-theme-color: #{$vermilion-soft};
+  --global-hover-color: #{$saffron};
+  --global-hover-text-color: #{$indigo-deep};
+  --global-divider-color: rgba(239, 230, 214, 0.14);
+  --global-code-bg-color: #221d4a;
+  --global-footer-bg-color: #{$indigo-deep};
+  --global-footer-text-color: #efe6d6;
+  --global-footer-link-color: #{$saffron};
+  --heritage-heading-color: #f5e9d4;
+  --heritage-sidebar-bg: #{$indigo-deep};
+}
+
+/* Content ---------------------------------------------------------------------*/
+
+body {
+  font-family: $font-body;
+  background-color: var(--global-bg-color);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.post-title,
+.card-title {
+  font-family: $font-serif;
+  color: var(--heritage-heading-color);
+}
+
+.post-title {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: rgba(232, 163, 61, 0.35);
+}
+
+a:hover {
+  text-underline-offset: 3px;
+}
+
+hr {
+  border: 0;
+  height: 14px;
+  margin: 2rem 0;
+  background: $alpona-vermilion repeat-x center / auto 12px;
+  opacity: 0.5;
+}
+
+html[data-theme="dark"] hr {
+  background-image: $alpona-saffron;
+}
+
+// Alpona ornament under section headings
+.post article h2:not(.card-title)::after {
+  content: "";
+  display: block;
+  width: 5.5rem;
+  height: 10px;
+  margin-top: 0.35rem;
+  background: $alpona-vermilion repeat-x left center / auto 10px;
+  opacity: 0.8;
+}
+
+html[data-theme="dark"] .post article h2:not(.card-title)::after {
+  background-image: $alpona-saffron;
+}
+
+.card {
+  border: 1px solid var(--global-divider-color);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+footer.sticky-bottom {
+  border-top: 0;
+
+  &::before {
+    content: "";
+    display: block;
+    max-width: 12rem;
+    height: 14px;
+    margin: 0 auto 1.5rem;
+    background: $alpona-vermilion repeat-x center / auto 12px;
+    opacity: 0.6;
+  }
+
+  .container {
+    color: var(--global-text-color-light);
+  }
+}
+
+html[data-theme="dark"] footer.sticky-bottom::before {
+  background-image: $alpona-saffron;
+}
+
+/* Sidebar (mobile first: sticky top bar) --------------------------------------*/
+
+.site-sidebar {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  background-color: var(--heritage-sidebar-bg);
+  font-family: $font-body;
+
+  &::after {
+    content: "";
+    display: block;
+    height: 12px;
+    background: $alpona-saffron repeat-x center / auto 12px;
+  }
+
+  p,
+  span,
+  div,
+  li,
+  a,
+  i,
+  button {
+    color: rgba(251, 243, 228, 0.86);
+  }
+}
+
+.sidebar-inner {
+  padding: 0.6rem 1rem;
+}
+
+.sidebar-top {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sidebar-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+.sidebar-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow:
+    0 0 0 2px var(--heritage-sidebar-bg),
+    0 0 0 4px #{$saffron};
+}
+
+.sidebar-names {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.site-sidebar .sidebar-name-native {
+  font-family: $font-bengali;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: $saffron;
+}
+
+.site-sidebar .sidebar-name {
+  font-family: $font-serif;
+  font-size: 1rem;
+  color: $cream;
+}
+
+.site-sidebar .navbar-toggler {
+  margin-left: auto;
+  border: 0;
+  padding: 0.4rem;
+
+  .icon-bar {
+    background-color: $cream;
+  }
+}
+
+.site-sidebar .sidebar-tagline {
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  color: $saffron;
+  margin: 0.75rem 0 0.5rem;
+}
+
+.sidebar-nav {
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+}
+
+.site-sidebar .sidebar-nav .nav-link {
+  display: block;
+  padding: 0.45rem 0.8rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  color: rgba(251, 243, 228, 0.8);
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    color: $cream;
+    background-color: rgba(251, 243, 228, 0.07);
+    text-decoration: none;
+  }
+}
+
+.site-sidebar .sidebar-nav .nav-item.active > .nav-link {
+  color: $cream;
+  font-weight: 600;
+  background-color: rgba(232, 163, 61, 0.16);
+  box-shadow: inset 3px 0 0 #{$saffron};
+}
+
+.sidebar-bottom {
+  margin-top: 0.5rem;
+  padding: 0.75rem 0 0.5rem;
+  border-top: 1px solid rgba(251, 243, 228, 0.12);
+}
+
+.site-sidebar .sidebar-location {
+  font-size: 0.9rem;
+  margin: 0 0 0.6rem;
+
+  i {
+    color: $saffron;
+    margin-right: 0.35rem;
+  }
+}
+
+.sidebar-social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.85rem;
+  margin-bottom: 0.6rem;
+  font-size: 1.3rem;
+
+  svg,
+  img {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+}
+
+.site-sidebar .sidebar-social a {
+  text-decoration: none;
+
+  i {
+    color: rgba(251, 243, 228, 0.85);
+  }
+
+  &:hover i {
+    color: $saffron;
+  }
+}
+
+.site-sidebar #light-toggle {
+  color: $cream;
+  transform: none;
+
+  i,
+  .fa-half-sun-moon::before,
+  .fa-half-sun-moon::after {
+    color: $cream;
+  }
+
+  &:hover i,
+  &:hover .fa-half-sun-moon::before,
+  &:hover .fa-half-sun-moon::after {
+    color: $saffron;
+  }
+}
+
+/* Sidebar (desktop: fixed left column) ----------------------------------------*/
+
+@media (min-width: $desktop) {
+  body.has-sidebar {
+    padding-left: $sidebar-width;
+  }
+
+  .site-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: $sidebar-width;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    border-right: 1px solid rgba(232, 163, 61, 0.18);
+
+    &::before {
+      content: "";
+      display: block;
+      flex: none;
+      height: 12px;
+      background: $alpona-saffron repeat-x center / auto 12px;
+    }
+
+    &::after {
+      flex: none;
+    }
+  }
+
+  .sidebar-inner {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 1.5rem 1rem;
+  }
+
+  .sidebar-top,
+  .sidebar-identity {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.9rem;
+  }
+
+  .sidebar-names {
+    align-items: center;
+  }
+
+  .sidebar-avatar {
+    width: 136px;
+    height: 136px;
+    box-shadow:
+      0 0 0 4px var(--heritage-sidebar-bg),
+      0 0 0 6px #{$saffron};
+  }
+
+  .site-sidebar .sidebar-name-native {
+    font-size: 2.1rem;
+  }
+
+  .site-sidebar .sidebar-name {
+    font-size: 1.2rem;
+    letter-spacing: 0.02em;
+  }
+
+  .site-sidebar .navbar-toggler {
+    display: none;
+  }
+
+  .sidebar-collapse,
+  .sidebar-collapse.collapse:not(.show) {
+    display: flex !important;
+    flex: 1;
+    flex-direction: column;
+    height: auto !important;
+  }
+
+  .site-sidebar .sidebar-tagline {
+    text-align: center;
+    margin: 0.4rem 0 1.5rem;
+  }
+
+  .sidebar-bottom {
+    margin-top: auto;
+  }
+}

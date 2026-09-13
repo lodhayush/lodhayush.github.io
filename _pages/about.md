@@ -6,21 +6,13 @@ subtitle: >
   Master's Student · <a href="https://nitdelhi.ac.in/">NIT Delhi</a> ·
   Advised by <a href="https://faculty.nitdelhi.ac.in/NishaSinghChauhan/profile">Dr. Nisha Singh Chauhan</a>
 
-profile:
-  align: right
-  image: prof_pic.jpg
-  image_circular: true # small circular avatar (styled in _sass/_components.scss)
-  more_info: >
-    <p>New Delhi, India</p>
-    <p><a href="mailto:ayushlodh26@gmail.com">ayushlodh26@gmail.com</a></p>
-
 news: true
 announcements:
   enabled: true
   scrollable: true # adds a scrollbar if there are more than 3 news items
   limit: 5 # leave blank to include all the news in the `_data/news.yml` file
 selected_papers: true # shows papers marked selected={true} in _bibliography/papers.bib
-social: true # shows the social icons defined in _data/socials.yml at the bottom
+social: false # the social icons live in the sidebar
 chart:
   echarts: true # needed for the "Research at a Glance" charts below (timeline data: _plugins/pub-stats.rb)
 ---
