@@ -2,7 +2,7 @@
 # CV data rendered on the /cv/ page (cv_format: rendercv in _pages/cv.md).
 # Add, remove, or reorder sections freely — each key under `sections:` becomes
 # a heading on the page. Dates can be years ("2024") or "YYYY-MM" (only the
-# year is displayed). Populated from assets/pdf/Ayush_Lodh_CV.pdf.
+# year is displayed). Populated from assets/pdf/Curriculum_Vitae.pdf.
 # ─────────────────────────────────────────────────────────────────────────────
 cv:
   name: Ayush Lodh
@@ -134,3 +134,20 @@ cv:
       - name: Hindi
         summary: Fluent
         icon: fa-solid fa-language
+
+    Interests:
+      - name: Computer Vision
+        icon: fa-solid fa-eye
+        keywords: ["Document Image Analysis", "Handwriting Recognition"]
+      - name: Pattern Recognition
+        icon: fa-solid fa-signature
+        keywords: ["Writer-Independent Online and Offline Handwritten Text Recognition"]
+      - name: Deep Learning & Machine Learning
+        icon: fa-solid fa-brain
+        keywords: ["Transformers", "Vision-Language Models", "Graph Neural Networks"]
+      - name: Document Understanding
+        icon: fa-solid fa-file-lines
+        keywords: ["Multimodal Retrieval-Augmented Generation (RAG)", "Document Visual Question Answering"]
+      - name: Open Source
+        icon: fa-brands fa-github
+        keywords: ["PyTorch", "TensorFlow", "HATChar-Classifier"]

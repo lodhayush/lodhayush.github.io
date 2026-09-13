@@ -1,29 +1,31 @@
 ---
 layout: page
 title: Transformer-Based Handwriting Recognition
-description: Jointly using online (stroke) and offline (image) features for handwritten text recognition. Published at ACPR 2025.
-img: # e.g. assets/img/handwriting_preview.jpg — add a figure from the paper
-importance: 1
+description: Early fusion of online stroke and offline image features
+importance: 3
 category: work
 ---
 
-Handwriting recognition systems typically use either **online** features (pen
-trajectories and stroke dynamics) or **offline** features (rendered images) —
-each captures information the other misses.
+A **transformer-based handwriting recognition system** that jointly uses **online** (pen trajectory) and **offline** (rasterized image) features. Published at **ACPR 2025**.
 
-This work builds a **transformer-based recognition system that fuses both
-modalities jointly**, improving recognition over single-modality baselines.
-The paper was published at **ACPR 2025** (Lecture Notes in Computer Science)
-with collaborators from the Indian Statistical Institute, Kolkata.
+### Problem
 
-**Links:** [Paper (DOI)](https://doi.org/10.1007/978-981-95-4395-3_18) ·
-[arXiv](https://arxiv.org/abs/2506.20255) ·
-[Code (HATChar-Classifier)](https://github.com/lodhayush/HATChar-Classifier)
+Handwriting carries complementary cues in the rasterized glyph and in the pen's trajectory, yet most recognition systems exploit only one modality — losing information the other captures.
 
-<!-- EDIT: add result figures to assets/img/ and embed them here, e.g.:
-<div class="row">
-    <div class="col-sm mt-3 mt-md-0">
-        {% include figure.liquid loading="eager" path="assets/img/handwriting_results.jpg" title="results" class="img-fluid rounded z-depth-1" %}
-    </div>
-</div>
--->
+### Approach
+
+- **Patch encoder** converts the grayscale crop into fixed-length visual tokens
+- **Lightweight transformer** embeds the (x, y, pen) stroke sequence
+- **Learnable latent queries** attend jointly to both token streams, yielding context-enhanced stroke embeddings that are pooled and decoded under a cross-entropy objective
+- **Early fusion** in a shared latent space, before any high-level classification, so temporal and visual cues reinforce each other — producing stronger writer independence
+
+### Results
+
+- **State-of-the-art accuracy** on **IAMOn-DB** and **VNOn-DB**, exceeding previous bests by up to 1%
+- Pipeline adapted with gesturification to the **ISI-Air** dataset
+
+### Publication
+
+Lodh, A., Chakraborty, R., Shivakumara, P., Pal, U. _A Transformer Based Handwriting Recognition System Jointly Using Online and Offline Features._ ACPR 2025, LNCS, pp. 250–264. [DOI](https://doi.org/10.1007/978-981-95-4395-3_18) · [arXiv](https://arxiv.org/abs/2506.20255) · [Code (HATChar-Classifier)](https://github.com/lodhayush/HATChar-Classifier)
+
+Work done at the [Computer Vision and Pattern Recognition Unit](https://cvpru.isical.ac.in/), Indian Statistical Institute, Kolkata, advised by Prof. Umapada Pal.

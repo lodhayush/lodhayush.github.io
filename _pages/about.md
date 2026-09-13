@@ -22,7 +22,7 @@ announcements:
 selected_papers: true # shows papers marked selected={true} in _bibliography/papers.bib
 social: true # shows the social icons defined in _data/socials.yml at the bottom
 chart:
-  echarts: true # needed for the "Research at a Glance" charts below
+  echarts: true # needed for the "Research at a Glance" charts below (timeline data: _plugins/pub-stats.rb)
 ---
 
 I am a Master's student in the [Department of Computer Science & Engineering](https://cse.nitdelhi.ac.in/) at **National Institute of Technology Delhi**, working under the supervision of [Dr. Nisha Singh Chauhan](https://faculty.nitdelhi.ac.in/NishaSinghChauhan/profile).
@@ -35,13 +35,6 @@ My research spans **computer vision**, **deep learning**, and **pattern recognit
 
 I have collaborated with the [Computer Vision and Pattern Recognition Unit (CVPRU)](https://cvpru.isical.ac.in/) at the [Indian Statistical Institute, Kolkata](https://www.isical.ac.in/), working with [Prof. Umapada Pal](https://www.isical.ac.in/~umapada/)'s group on handwriting recognition and document analysis, and contributed to the **ICDAR 2025 Handwritten Notes Understanding Challenge**.
 
-## Research Interests
-
-- **Computer Vision** — document image analysis and handwriting recognition
-- **Pattern Recognition** — writer-independent online and offline handwritten text recognition
-- **Deep Learning & Machine Learning** — transformers, vision-language models, and graph neural networks
-- **Document Understanding** — multimodal retrieval-augmented generation (RAG) and document visual question answering
-
 <h2><a href="{{ '/news/' | relative_url }}" style="color: inherit">News</a></h2>
 
 {% include news.liquid limit=true %}
@@ -53,32 +46,41 @@ I have collaborated with the [Computer Vision and Pattern Recognition Unit (CVPR
 <div class="row mt-3">
   <div class="col-sm-6" markdown="1">
 
-**Publication Venues**
+**Publication Timeline**
 
 ```echarts
 {
-  "tooltip": { "trigger": "item", "formatter": "{b}: {c} ({d}%)" },
-  "legend": {
-    "orient": "vertical",
-    "right": "0%",
-    "top": "center"
+  "tooltip": { "trigger": "axis" },
+  "grid": { "left": "5%", "right": "5%", "bottom": "10%", "containLabel": true },
+  "xAxis": {
+    "type": "category",
+    "data": [{% for y in site.data.pub_stats.years %}"{{ y.year }}"{% unless forloop.last %}, {% endunless %}{% endfor %}],
+    "axisLabel": { "color": "#666" }
+  },
+  "yAxis": {
+    "type": "value",
+    "name": "Papers",
+    "minInterval": 1,
+    "axisLabel": { "color": "#666" }
   },
   "series": [
     {
-      "type": "pie",
-      "radius": ["35%", "60%"],
-      "center": ["35%", "50%"],
-      "avoidLabelOverlap": true,
-      "itemStyle": { "borderRadius": 6, "borderColor": "#fff", "borderWidth": 2 },
-      "label": { "show": false },
-      "emphasis": {
-        "label": { "show": true, "fontSize": 13, "fontWeight": "bold" }
+      "name": "Publications",
+      "type": "bar",
+      "barMaxWidth": 40,
+      "data": [{% for y in site.data.pub_stats.years %}{{ y.count }}{% unless forloop.last %}, {% endunless %}{% endfor %}],
+      "itemStyle": {
+        "color": {
+          "type": "linear",
+          "x": 0, "y": 0, "x2": 0, "y2": 1,
+          "colorStops": [
+            { "offset": 0, "color": "#4f8ef7" },
+            { "offset": 1, "color": "#7fcfe8" }
+          ]
+        },
+        "borderRadius": [4, 4, 0, 0]
       },
-      "data": [
-        { "value": 2, "name": "ICDAR (LNCS)", "itemStyle": { "color": "#5cc88a" } },
-        { "value": 1, "name": "ECML PKDD (LNCS)", "itemStyle": { "color": "#f7a64f" } },
-        { "value": 1, "name": "ACPR (LNCS)", "itemStyle": { "color": "#4f8ef7" } }
-      ]
+      "label": { "show": true, "position": "top" }
     }
   ]
 }
@@ -115,6 +117,43 @@ I have collaborated with the [Computer Vision and Pattern Recognition Unit (CVPR
           "lineStyle": { "color": "#4f8ef7", "width": 2 },
           "itemStyle": { "color": "#4f8ef7" }
         }
+      ]
+    }
+  ]
+}
+```
+
+  </div>
+</div>
+
+<div class="row mt-2">
+  <div class="col-sm-12" markdown="1">
+
+**Publication Venues**
+
+```echarts
+{
+  "tooltip": { "trigger": "item", "formatter": "{b}: {c} ({d}%)" },
+  "legend": {
+    "orient": "vertical",
+    "right": "5%",
+    "top": "center"
+  },
+  "series": [
+    {
+      "type": "pie",
+      "radius": ["35%", "60%"],
+      "center": ["38%", "50%"],
+      "avoidLabelOverlap": true,
+      "itemStyle": { "borderRadius": 6, "borderColor": "#fff", "borderWidth": 2 },
+      "label": { "show": false },
+      "emphasis": {
+        "label": { "show": true, "fontSize": 13, "fontWeight": "bold" }
+      },
+      "data": [
+        { "value": 2, "name": "ICDAR (LNCS)", "itemStyle": { "color": "#5cc88a" } },
+        { "value": 1, "name": "ECML PKDD (LNCS)", "itemStyle": { "color": "#f7a64f" } },
+        { "value": 1, "name": "ACPR (LNCS)", "itemStyle": { "color": "#4f8ef7" } }
       ]
     }
   ]

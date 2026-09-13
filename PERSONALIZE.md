@@ -2,7 +2,7 @@
 
 The site is fully populated for **Ayush Lodh** — identity, socials, publications,
 news, projects, photo, CV page + PDF download, and the custom domain. The CV
-details in `_data/cv.yml` were filled in from `assets/pdf/Ayush_Lodh_CV.pdf`.
+details in `_data/cv.yml` were filled in from `assets/pdf/Curriculum_Vitae.pdf`.
 
 ## Verify before pushing live
 
@@ -20,7 +20,7 @@ details in `_data/cv.yml` were filled in from `assets/pdf/Ayush_Lodh_CV.pdf`.
 ## Optional polish
 
 - [ ] **Project images** — add paper figures to `assets/img/` and set the `img:`
-      field in `_projects/1_project.md` / `2_project.md`; publication thumbnails
+      field in `_projects/1_project.md` … `4_project.md`; publication thumbnails
       go in `assets/img/publication_preview/` (add a `preview=` field to entries
       in `_bibliography/papers.bib`).
 - [ ] **Google Analytics** — set `google_analytics:` in `_config.yml` and flip
@@ -47,8 +47,13 @@ details in `_data/cv.yml` were filled in from `assets/pdf/Ayush_Lodh_CV.pdf`.
 
 ## Notes
 
-- The CV PDF lives at `assets/pdf/Ayush_Lodh_CV.pdf`; the download icon on the
+- The CV PDF lives at `assets/pdf/Curriculum_Vitae.pdf`; the download icon on the
   /cv/ page comes from the `cv_pdf:` line in `_pages/cv.md`.
+- Research interests live on the **CV page** (`Interests:` section at the end of
+  `_data/cv.yml`), not on the About page.
+- The About page's **Publication Timeline** chart counts papers per year from
+  `_bibliography/papers.bib` on every build (`_plugins/pub-stats.rb`), so it
+  never needs editing.
 - Ayush's phone number and street address appear in the CV PDF but were
   **deliberately left out** of the website pages (`_data/cv.yml` lists only
   city-level location). The PDF itself is public once deployed — swap in a
@@ -63,8 +68,8 @@ details in `_data/cv.yml` were filled in from `assets/pdf/Ayush_Lodh_CV.pdf`.
   Scholar has no API or notifications, so "automatic" means daily polling.
 - **Review auto-added papers:** entries the sync appends come from Scholar's
   metadata. Check the venue name, `abbr` badge, and author spelling, and add
-  `selected={true}` / `arxiv=` / `abstract=` by hand. The About page pie chart
-  and news are **not** updated automatically.
+  `selected={true}` / `arxiv=` / `abstract=` by hand. The About page venues pie
+  chart and news are **not** updated automatically (the timeline chart is).
 - **If the sync run goes red**, Google Scholar blocked the GitHub runner
   (CAPTCHA/429). Nothing is overwritten, and the last good counts stay live.
   Occasional red runs are expected. If every run fails, Scholar is blocking
