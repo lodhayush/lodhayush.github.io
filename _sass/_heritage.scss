@@ -373,6 +373,11 @@ body.is-about .sidebar-avatar {
   view-transition-name: sidebar-names;
 }
 
+// Email under the portrait: clear the saffron ring
+.post .profile .more-info {
+  margin-top: 0.9rem;
+}
+
 .post .profile img.rounded-circle {
   max-width: 15rem;
   box-shadow:

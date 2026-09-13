@@ -11,6 +11,8 @@ profile:
   align: right
   image: prof_pic.jpg
   image_circular: true # large circular portrait; the sidebar photo animates into it (see _sass/_heritage.scss)
+  more_info: >
+    <p><a href="mailto:ayushlodh26@gmail.com">ayushlodh26@gmail.com</a></p>
 
 news: true
 announcements:
