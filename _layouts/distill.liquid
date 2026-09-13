@@ -52,7 +52,7 @@
     </script>
   </d-front-matter>
 
-  <body class="has-sidebar {% if site.navbar_fixed %}fixed-top-nav{% endif %} {% unless site.footer_fixed %}sticky-bottom-footer{% endunless %}">
+  <body class="has-sidebar {% if page.permalink == '/' %}is-about{% endif %} {% if site.navbar_fixed %}fixed-top-nav{% endif %} {% unless site.footer_fixed %}sticky-bottom-footer{% endunless %}">
     <!-- Header -->
     {% include header.liquid %}
 

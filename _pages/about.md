@@ -7,6 +7,11 @@ subtitle: >
   Advised by <a href="https://faculty.nitdelhi.ac.in/NishaSinghChauhan/profile">Dr. Nisha Singh Chauhan</a>
   and <a href="https://scholar.google.com/citations?user=J-VlCNYAAAAJ">Dr. Sanket Biswas</a>
 
+profile:
+  align: right
+  image: prof_pic.jpg
+  image_circular: true # large circular portrait; the sidebar photo animates into it (see _sass/_heritage.scss)
+
 news: true
 announcements:
   enabled: true

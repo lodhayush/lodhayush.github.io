@@ -338,6 +338,52 @@ html[data-theme="dark"] footer.sticky-bottom::before {
   }
 }
 
+/* Photo transition: the sidebar photo travels into the About page and grows ---*/
+
+// Cross-document View Transitions (Chromium, Safari 18.2+); other browsers
+// simply navigate without the animation.
+@view-transition {
+  navigation: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
+// The same name on both pages makes the browser morph one photo into the other.
+body:not(.is-about) .sidebar-avatar,
+body.is-about .post .profile img {
+  view-transition-name: profile-photo;
+}
+
+// On the About page the photo lives in the content, so the sidebar drops it.
+body.is-about .sidebar-avatar {
+  display: none;
+}
+
+.sidebar-names {
+  view-transition-name: sidebar-names;
+}
+
+.post .profile img.rounded-circle {
+  max-width: 15rem;
+  box-shadow:
+    0 0 0 5px var(--global-bg-color),
+    0 0 0 7px #{$saffron};
+}
+
+::view-transition-group(profile-photo) {
+  animation-duration: 0.6s;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+::view-transition-group(sidebar-names) {
+  animation-duration: 0.6s;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
 /* Sidebar (desktop: fixed left column) ----------------------------------------*/
 
 @media (min-width: $desktop) {
