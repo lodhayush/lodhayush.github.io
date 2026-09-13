@@ -66,8 +66,8 @@ I have collaborated with the [Computer Vision and Pattern Recognition Unit (CVPR
           "type": "linear",
           "x": 0, "y": 0, "x2": 0, "y2": 1,
           "colorStops": [
-            { "offset": 0, "color": "#4f8ef7" },
-            { "offset": 1, "color": "#7fcfe8" }
+            { "offset": 0, "color": "#b93a14" },
+            { "offset": 1, "color": "#e8a33d" }
           ]
         },
         "borderRadius": [4, 4, 0, 0]
@@ -106,8 +106,8 @@ I have collaborated with the [Computer Vision and Pattern Recognition Unit (CVPR
           "value": [8, 8, 9, 8, 7],
           "name": "Expertise",
           "areaStyle": { "opacity": 0.3 },
-          "lineStyle": { "color": "#4f8ef7", "width": 2 },
-          "itemStyle": { "color": "#4f8ef7" }
+          "lineStyle": { "color": "#b93a14", "width": 2 },
+          "itemStyle": { "color": "#b93a14" }
         }
       ]
     }
@@ -143,9 +143,9 @@ I have collaborated with the [Computer Vision and Pattern Recognition Unit (CVPR
         "label": { "show": true, "fontSize": 13, "fontWeight": "bold" }
       },
       "data": [
-        { "value": 2, "name": "ICDAR (LNCS)", "itemStyle": { "color": "#5cc88a" } },
-        { "value": 1, "name": "ECML PKDD (LNCS)", "itemStyle": { "color": "#f7a64f" } },
-        { "value": 1, "name": "ACPR (LNCS)", "itemStyle": { "color": "#4f8ef7" } }
+        { "value": 2, "name": "ICDAR (LNCS)", "itemStyle": { "color": "#3b3486" } },
+        { "value": 1, "name": "ECML PKDD (LNCS)", "itemStyle": { "color": "#e8a33d" } },
+        { "value": 1, "name": "ACPR (LNCS)", "itemStyle": { "color": "#b93a14" } }
       ]
     }
   ]

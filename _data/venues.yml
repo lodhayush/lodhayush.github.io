@@ -2,13 +2,13 @@
 # `url` makes the badge a link; `color` sets its background.
 
 "ACPR":
-  color: "#4f8ef7"
+  color: "#b93a14"
 
 "ICDAR":
-  color: "#5cc88a"
+  color: "#3b3486"
 
 "ECML PKDD":
-  color: "#f7a64f"
+  color: "#c9861f"
 
 "arXiv":
   url: https://arxiv.org/
