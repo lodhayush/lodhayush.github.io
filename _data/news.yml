@@ -9,7 +9,15 @@
   inline: >
     🎉 <strong>NoTeS-Bank</strong> has been accepted at
     <a href="https://ecmlpkdd.org/2026/">ECML PKDD 2026</a>!
+    [<a href="https://doi.org/10.1007/978-3-032-37676-3_40">paper</a>]
     [<a href="https://arxiv.org/abs/2504.09249">arXiv</a>]
+
+- date: "2026-05-15"
+  inline: >
+    🎉 My first-author paper <strong>From Chunks to Graphs: Training-Free Multimodal
+    Late Interaction for Document Understanding</strong> has been accepted at
+    <a href="https://icdar2026.org/">ICDAR 2026</a> (Vienna, Austria)!
+    [<a href="https://doi.org/10.1007/978-3-032-36039-7_35">paper</a>]
 
 - date: "2025-11-10"
   inline: >

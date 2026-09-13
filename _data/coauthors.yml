@@ -9,6 +9,14 @@
   - firstname: ["Alloy", "A."]
     url: https://alloydas.github.io/
 
+"chauhan":
+  - firstname: ["Nisha Singh", "Nisha", "N. S.", "N."]
+    url: https://faculty.nitdelhi.ac.in/NishaSinghChauhan/profile
+
+"singh":
+  - firstname: ["Nisha", "N."]
+    url: https://faculty.nitdelhi.ac.in/NishaSinghChauhan/profile
+
 "jawahar":
   - firstname: ["C. V.", "C.V.", "C."]
     url: https://faculty.iiit.ac.in/~jawahar/

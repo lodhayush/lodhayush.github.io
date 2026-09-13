@@ -7,6 +7,9 @@
 "ICDAR":
   color: "#5cc88a"
 
+"ECML PKDD":
+  color: "#f7a64f"
+
 "arXiv":
   url: https://arxiv.org/
   color: "#b31b1b"

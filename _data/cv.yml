@@ -13,7 +13,8 @@ cv:
   summary: >
     Master's student at NIT Delhi researching computer vision, deep learning, and
     pattern recognition, with a focus on handwriting recognition and document
-    understanding. Author of peer-reviewed papers at ACPR 2025 and ICDAR 2025;
+    understanding. Author of peer-reviewed papers at ICDAR 2026, ECML PKDD 2026,
+    ACPR 2025, and ICDAR 2025;
     past research intern at CVPRU (ISI Kolkata) and the Computer Vision Center
     (UAB, Barcelona).
 
@@ -40,7 +41,7 @@ cv:
         highlights:
           - "CGPA: 7.5/10"
           - "Advisor: Prof. Dr. Nisha Singh Chauhan"
-          - "Ongoing project: *From Chunks to Graphs*, co-advised by Dr. Sanket Biswas (CVC, UAB)"
+          - "Project: *From Chunks to Graphs*, co-advised by Dr. Sanket Biswas (CVC, UAB) — published at ICDAR 2026 (first author)"
           - "Coursework: Data Mining and Warehousing, Deep Learning, Advanced Databases"
 
       - institution: University Institute of Technology, The University of Burdwan
@@ -55,6 +56,24 @@ cv:
           - "Final-year project: *3D Playfair Cipher with Dual Key* (advisor: Ms. Nabanita Das)"
           - "Coursework: Image Processing, Artificial Intelligence, Machine Learning"
 
+      - institution: D.A.V. Public School (CBSE)
+        location: Asansol, India
+        area: Higher Secondary Examination
+        studyType: Class XII
+        start_date: "2018"
+        end_date: "2020"
+        highlights:
+          - "Percentage: 81.8%"
+
+      - institution: D.A.V. Public School (CBSE)
+        location: Asansol, India
+        area: Secondary Examination
+        studyType: Class X
+        start_date: "2018"
+        end_date: "2018"
+        highlights:
+          - "Percentage: 84.2%"
+
     Experience:
       - company: Computer Vision Center, Universitat Autònoma de Barcelona
         position: Research Intern
@@ -64,7 +83,7 @@ cv:
         end_date: "2026-03"
         highlights:
           - "Worked on multimodal retrieval-augmented generation with graph neural networks over enterprise document images, advised by Dr. Sanket Biswas and Dr. Josep Lladós"
-          - "Developed *From Chunks to Graphs*, a training-free multimodal retrieval framework that replaces chunk-based selection with structure-aware subgraph retrieval over Doc2Graph representations, improving factual consistency on document VQA over text-RAG baselines"
+          - "Developed *From Chunks to Graphs*, a training-free multimodal retrieval framework that replaces chunk-based selection with structure-aware subgraph retrieval over Doc2Graph representations, improving factual consistency on document VQA over text-RAG baselines — published at ICDAR 2026 (first author)"
 
       - company: Habitat Lens Private Limited
         position: Junior AI Engineer
@@ -73,7 +92,7 @@ cv:
         end_date: "2024-07"
         highlights:
           - "Worked on handwritten document images and annotation pipelines for AI solutions"
-          - "Co-developed *NoTeS-Bank*, a benchmark for neural transcription and search over handwritten scientific notes, working with Alloy Das (arXiv:2504.09249)"
+          - "Co-developed *NoTeS-Bank*, a benchmark evaluating vision-language models on handwritten academic and scientific notes, working with Alloy Das — published at ECML PKDD 2026"
 
       - company: Computer Vision & Pattern Recognition Unit (CVPRU), Indian Statistical Institute
         position: Research Intern

@@ -6,9 +6,8 @@ details in `_data/cv.yml` were filled in from `assets/pdf/Ayush_Lodh_CV.pdf`.
 
 ## Verify before pushing live
 
-- [ ] **ECML PKDD 2026 news item** (`_data/news.yml`) — the NoTeS-Bank acceptance
-      was taken from a coauthor's announcement and could not be re-verified against
-      public sources; confirm it is real before the site goes live.
+- [x] **ECML PKDD 2026 news item** (`_data/news.yml`) — confirmed: NoTeS-Bank is
+      in the ECML PKDD 2026 proceedings (DOI 10.1007/978-3-032-37676-3_40).
 - [ ] **News dates** (`_data/news.yml`) — the "Started my Master's" (2025-08-01)
       and "Started a remote research internship at CVC" (2025-12-01) items use
       approximate days; adjust if you want exact dates.

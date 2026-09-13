@@ -29,9 +29,9 @@ I am a Master's student in the [Department of Computer Science & Engineering](ht
 
 My research interests lie in **computer vision**, **deep learning**, and **pattern recognition**, with a particular focus on **handwriting recognition** and **document understanding**. My recent work includes:
 
+- **From Chunks to Graphs** — a training-free multimodal retrieval framework that replaces chunk-based RAG with structure-aware subgraph retrieval over document graphs, developed during a research internship at the [Computer Vision Center](https://www.cvc.uab.es/) (UAB, Barcelona) and published at ICDAR 2026.
+- **NoTeS-Bank** — a benchmark evaluating vision-language models on unstructured academic and scientific handwritten notes through evidence-based and open-domain VQA, published at ECML PKDD 2026.
 - **Transformer-based handwriting recognition** — a system that jointly leverages online (stroke) and offline (image) features, published at ACPR 2025.
-- **NoTeS-Bank** — a benchmark for neural transcription and search over handwritten scientific notes, evaluating vision-language models on evidence-based and open-domain VQA.
-- **From Chunks to Graphs** — a training-free multimodal retrieval framework that replaces chunk-based RAG with structure-aware subgraph retrieval over document graphs, developed during a research internship at the [Computer Vision Center](https://www.cvc.uab.es/) (UAB, Barcelona).
 
 I have collaborated with the [Computer Vision and Pattern Recognition Unit (CVPRU)](https://cvpru.isical.ac.in/) at the [Indian Statistical Institute, Kolkata](https://www.isical.ac.in/), working with [Prof. Umapada Pal](https://www.isical.ac.in/~umapada/)'s group on handwriting recognition and document analysis, and contributed to the **ICDAR 2025 Handwritten Notes Understanding Challenge**.
 
@@ -68,9 +68,9 @@ I have collaborated with the [Computer Vision and Pattern Recognition Unit (CVPR
         "label": { "show": true, "fontSize": 13, "fontWeight": "bold" }
       },
       "data": [
-        { "value": 1, "name": "ACPR (LNCS)", "itemStyle": { "color": "#4f8ef7" } },
-        { "value": 1, "name": "ICDAR (LNCS)", "itemStyle": { "color": "#5cc88a" } },
-        { "value": 1, "name": "arXiv preprints", "itemStyle": { "color": "#f7a64f" } }
+        { "value": 2, "name": "ICDAR (LNCS)", "itemStyle": { "color": "#5cc88a" } },
+        { "value": 1, "name": "ECML PKDD (LNCS)", "itemStyle": { "color": "#f7a64f" } },
+        { "value": 1, "name": "ACPR (LNCS)", "itemStyle": { "color": "#4f8ef7" } }
       ]
     }
   ]
