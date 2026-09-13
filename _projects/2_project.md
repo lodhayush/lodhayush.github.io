@@ -2,6 +2,7 @@
 layout: page
 title: NoTeS-Bank
 description: Benchmarking vision-language models on handwritten scientific notes
+img: assets/img/notesbank.jpg
 importance: 2
 category: work
 chart:
@@ -56,6 +57,10 @@ Evidence-Based VQA — even the strongest VLMs trail far behind the human baseli
   ]
 }
 ```
+
+### Qualitative Comparison
+
+{% include figure.liquid loading="eager" path="assets/img/notesbank_results.jpg" class="img-fluid rounded z-depth-1" caption="Qualitative comparison of Vision-Language Models, OCR+LLMs, and human responses on a handwritten scientific note." %}
 
 ### Publication
 

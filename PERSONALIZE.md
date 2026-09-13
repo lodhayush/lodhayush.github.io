@@ -19,8 +19,11 @@ details in `_data/cv.yml` were filled in from `assets/pdf/Curriculum_Vitae.pdf`.
 
 ## Optional polish
 
-- [ ] **Project images** — add paper figures to `assets/img/` and set the `img:`
-      field in `_projects/1_project.md` … `4_project.md`; publication thumbnails
+- [x] **Project images** — card thumbnails and figures are in `assets/img/`
+      (Chunks to Graphs and ACPR figures cropped from the papers; NoTeS-Bank and
+      HNU figures from alloydas.github.io). The source paper PDFs live outside
+      the repo in `D:\Papers\` and must not be committed (`/*.pdf` is in
+      `.gitignore`). Publication thumbnails
       go in `assets/img/publication_preview/` (add a `preview=` field to entries
       in `_bibliography/papers.bib`).
 - [ ] **Google Analytics** — set `google_analytics:` in `_config.yml` and flip

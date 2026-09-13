@@ -15,3 +15,6 @@ node_modules/
 vendor.claude/
 __pycache__/
 *.pyc
+
+# Paper PDFs dropped in the repo root (the site only publishes assets/pdf/)
+/*.pdf
