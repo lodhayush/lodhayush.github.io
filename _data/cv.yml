@@ -124,24 +124,6 @@ cv:
         icon: fa-solid fa-file-lines
         keywords: ["LaTeX", "MS Office"]
 
-    Certificates:
-      - name: Problem Solving through Programming in C
-        issuer: NPTEL · IIT Kharagpur
-        date: "2022"
-        icon: fa-solid fa-certificate
-      - name: An Introduction to Programming through C++
-        issuer: NPTEL · IIT Bombay
-        date: "2022"
-        icon: fa-solid fa-certificate
-      - name: Programming, Data Structures and Algorithms Using Python
-        issuer: NPTEL · IIT Madras
-        date: "2023"
-        icon: fa-solid fa-certificate
-      - name: Machine Learning and Deep Learning — Fundamentals and Applications
-        issuer: NPTEL · IIT Guwahati
-        date: "2023"
-        icon: fa-solid fa-certificate
-
     Languages:
       - name: Bengali
         summary: Native

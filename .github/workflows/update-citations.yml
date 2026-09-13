@@ -1,18 +1,27 @@
 name: Update Citation Counts
 
+# Syncs citation counts and new papers from Google Scholar (bin/update_scholar.py).
+# Scholar sends no notifications, so "whenever something changes on Scholar"
+# means polling: once a day, plus whenever papers.bib or the sync itself changes.
 on:
   schedule:
-    - cron: "0 0 * * 1" # Monday
-    - cron: "0 0 * * 3" # Wednesday
-    - cron: "0 0 * * 5" # Friday
+    - cron: "17 3 * * *" # daily, 03:17 UTC
+  push:
+    branches:
+      - main
+    paths:
+      - "_bibliography/papers.bib"
+      - "bin/update_scholar.py"
+      - ".github/workflows/update-citations.yml"
   workflow_dispatch:
 
-# The job commits refreshed citation counts back to the repo, so GITHUB_TOKEN
-# needs write access. This repo's default token is read-only, which made the
-# "Commit and push if changed" step fail with 403 on every run where the counts
-# actually changed (runs with no change skipped the push and looked green).
 permissions:
-  contents: write
+  contents: write # commit refreshed counts and new papers
+  actions: write # start the deploy workflow after committing
+
+concurrency:
+  group: update-citations
+  cancel-in-progress: false
 
 jobs:
   update-citations:
@@ -21,81 +30,35 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      # See CUSTOMIZE.md for details on how to set up PAT for triggering subsequent workflows
-      #        with:
-      #          token: ${{ secrets.PAT }}
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.13"
 
       - name: Install dependencies
-        run: |
-          echo "🔧 Installing dependencies..."
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+        run: pip install requests pyyaml
 
-      - name: Save current citations.yml hash
-        id: before
+      # Exits non-zero without writing anything if Scholar blocks the runner,
+      # so a red run means "Scholar refused", and the last good counts stay live.
+      - name: Sync with Google Scholar
+        run: timeout 600 python bin/update_scholar.py
+
+      - name: Commit, push, and redeploy if anything changed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "📦 Checking existing citations.yml hash..."
-          if [ -f _data/citations.yml ]; then
-            sha_before=$(sha256sum _data/citations.yml | awk '{print $1}')
-            echo "sha_before=$sha_before" >> $GITHUB_OUTPUT
-            echo "📝 SHA before: $sha_before"
-          else
-            echo "sha_before=none" >> $GITHUB_OUTPUT
-            echo "📝 No existing citations.yml file found."
+          git add _data/citations.yml _bibliography/papers.bib
+          if git diff --staged --quiet; then
+            echo "ℹ️ Nothing changed on Google Scholar." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
           fi
-
-      - name: Run citation update script
-        id: run_citation_update
-        shell: bash
-        # Failures are no longer swallowed: the script queries real APIs
-        # (OpenAlex, Crossref) that serve CI runners, retries each request,
-        # and only exits non-zero when no source could be reached for any
-        # paper at all — which is a genuine breakage worth surfacing.
-        run: |
-          echo "🚀 Fetching citation counts..."
-          timeout 300 python bin/update_citations.py
-          echo "✅ Citation update succeeded." >> $GITHUB_STEP_SUMMARY
-
-      - name: Save new citations.yml hash
-        id: after
-        run: |
-          echo "🔍 Checking updated citations.yml hash..."
-          if [ -f _data/citations.yml ]; then
-            sha_after=$(sha256sum _data/citations.yml | awk '{print $1}')
-            echo "sha_after=$sha_after" >> $GITHUB_OUTPUT
-            echo "📝 SHA after: $sha_after"
-          else
-            echo "sha_after=none" >> $GITHUB_OUTPUT
-            echo "📝 citations.yml was not created or is missing."
-          fi
-
-      - name: Report citations.yml change in summary
-        run: |
-          echo "📋 Comparing citation file hashes..."
-          if [ "${{ steps.before.outputs.sha_before }}" != "${{ steps.after.outputs.sha_after }}" ]; then
-            echo "✅ _data/citations.yml was updated."
-            echo "✅ _data/citations.yml was updated." >> $GITHUB_STEP_SUMMARY
-          else
-            echo "ℹ️ _data/citations.yml was not changed."
-            echo "ℹ️ _data/citations.yml was not changed." >> $GITHUB_STEP_SUMMARY
-          fi
-
-      - name: Configure Git
-        run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
-          echo "🔧 Git configured."
-
-      - name: Commit and push if changed
-        run: |
-          git add _data/citations.yml
-          git diff --staged --quiet || (
-            echo "📤 Committing and pushing changes..."
-            git commit -m "Update Google Scholar citations"
-            git push
-          )
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: Sync citation counts and papers from Google Scholar"
+          git pull --rebase origin main
+          git push origin HEAD:main
+          # Pushes made with GITHUB_TOKEN never trigger other workflows, so the
+          # deploy has to be started explicitly or the new counts never go live.
+          gh workflow run deploy.yml --ref main
+          echo "✅ Synced from Google Scholar and started a deploy." >> "$GITHUB_STEP_SUMMARY"

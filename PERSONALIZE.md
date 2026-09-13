@@ -53,15 +53,22 @@ details in `_data/cv.yml` were filled in from `assets/pdf/Ayush_Lodh_CV.pdf`.
   **deliberately left out** of the website pages (`_data/cv.yml` lists only
   city-level location). The PDF itself is public once deployed — swap in a
   redacted version if that is a concern.
-- Citation counts auto-update 3×/week via
-  `.github/workflows/update-citations.yml`, which runs `bin/update_citations.py`
-  and writes `_data/citations.yml` (keyed by BibTeX cite key). Counts come from
-  the **OpenAlex** and **Crossref** APIs — not Google Scholar, which has no API
-  and blocks CI runners, so the old `scholarly` scrape never populated anything.
-  Each paper takes the highest count any source reports. A "citations" badge on
-  each publication shows the number (toggle `enable_publication_badges.citations`
-  in `_config.yml`). New papers are picked up automatically once they are added
-  to `_bibliography/papers.bib` and indexed by either API.
+- **Google Scholar sync:** `.github/workflows/update-citations.yml` runs
+  `bin/update_scholar.py` daily (and on pushes that touch `papers.bib` or the
+  script). It reads the public Scholar profile (`scholar_userid` in
+  `_config.yml`), writes counts to `_data/citations.yml` for the
+  `google_scholar` badge, tags `papers.bib` entries with `google_scholar_id`,
+  and appends any Scholar paper missing from `papers.bib`. Then it commits and
+  starts the deploy, because pushes made with `GITHUB_TOKEN` don't trigger it.
+  Scholar has no API or notifications, so "automatic" means daily polling.
+- **Review auto-added papers:** entries the sync appends come from Scholar's
+  metadata. Check the venue name, `abbr` badge, and author spelling, and add
+  `selected={true}` / `arxiv=` / `abstract=` by hand. The About page pie chart
+  and news are **not** updated automatically.
+- **If the sync run goes red**, Google Scholar blocked the GitHub runner
+  (CAPTCHA/429). Nothing is overwritten, and the last good counts stay live.
+  Occasional red runs are expected. If every run fails, Scholar is blocking
+  GitHub's IPs outright; a paid API such as SerpAPI would be the fix.
 - The **Repositories** page renders cards with GitHub's own OpenGraph card
   service (`opengraph.githubassets.com`). The theme originally used
   github-readme-stats and github-profile-trophy, but their public demo

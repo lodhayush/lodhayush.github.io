@@ -9,8 +9,8 @@ last_name: Lodh
 email: ayushlodh26@gmail.com
 description: >
   Master's student in Computer Science & Engineering at NIT Delhi.
-  Research interests: computer vision, deep learning, handwriting
-  recognition, and document understanding.
+  Research interests: computer vision, deep learning, pattern recognition,
+  handwriting recognition, and document understanding.
 footer_text: >
   Powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a>
   with the <a href="https://github.com/alshedivat/al-folio" target="_blank">al-folio</a> theme.
@@ -181,8 +181,8 @@ display_years:
 # Badges (shown on publication cards)
 enable_publication_badges:
   altmetric: true
-  citations: true # counts from _data/citations.yml (OpenAlex/Crossref, refreshed by CI)
   dimensions: true
+  google_scholar: true # counts from _data/citations.yml, synced daily from Google Scholar by CI
   inspirehep: false
 
 # Filter out certain bibtex entry types from the Bibliography / Citations page
