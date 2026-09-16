@@ -2,7 +2,7 @@
 //  - Labelled "research" nodes (from _data/research_graph.yml) link topics, papers
 //    and places; hover shows a label, click opens the page.
 //  - Clicking empty space adds nodes; when two added clusters meet, their link flashes.
-//  - The cursor leaves a fading ink trail and gently pushes nodes away.
+//  - The cursor links to nearby nodes and gently pushes them away.
 //  - Behind the text column the graph is faded, so it never competes with the content.
 //  - Hovering a project card pulses links from nearby nodes into the card.
 //  - Scrolling shifts the nodes slightly (parallax).
@@ -44,7 +44,6 @@
   let frame = null;
   let group = 0;
   let flashes = [];
-  let trail = [];
   let veil = null; // horizontal extent of the text column, where the graph is faded
   let hovered = null;
   let pinned = null;
@@ -313,7 +312,6 @@
       h.x = h.ax + Math.sin(now * 0.0004 + h.phase) * 6;
       h.y = h.ay + Math.cos(now * 0.0005 + h.phase) * 6;
     }
-    trail = trail.filter((p) => now - p.t < 600);
   }
 
   /* Drawing -------------------------------------------------------------------*/
@@ -426,12 +424,6 @@
       }
     }
 
-    // Ink trail behind the cursor.
-    for (let i = 1; i < trail.length; i++) {
-      const k = 1 - (now - trail[i].t) / 600;
-      if (k > 0) line(trail[i - 1].x, trail[i - 1].y, trail[i].x, trail[i].y, GOLD, 0.8 * k, 0.6 + 2 * k);
-    }
-
     // Fade everything behind the text column (soft edges) so the content stays readable.
     if (veil) {
       const edge = 48;
@@ -511,7 +503,6 @@
     }
     quality = 2;
     cursor = null;
-    trail = [];
     stop();
     draw(performance.now());
   }
@@ -577,10 +568,7 @@
       return;
     }
     if (!isDark()) return;
-    if (animated()) {
-      cursor = { x: e.clientX, y: e.clientY };
-      trail.push({ x: e.clientX, y: e.clientY, t: performance.now() });
-    }
+    if (animated()) cursor = { x: e.clientX, y: e.clientY };
     const hub = hubAt(e.clientX, e.clientY);
     setHovered(hub && !e.target.closest(CONTENT) ? hub : null);
   });

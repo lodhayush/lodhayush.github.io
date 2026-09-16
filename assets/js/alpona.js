@@ -12,6 +12,8 @@
 
   const MANDALA_MS = 6000; // time for a mandala to draw itself
   const FLOWER_MS = 900; // time for a flower to draw itself
+  const FLOWER_LIFE_MS = 4500; // a flower fades out and disappears after this long
+  const FLOWER_FADE_MS = 1500; // length of that fade
   const MAX_FLOWERS = 40;
   const FRAME_MS = [33, 50]; // frame interval at full and reduced quality
   const SPEED = 1.8; // overall pace of turning, breathing and shimmer
@@ -102,8 +104,8 @@
   function flower(x, y) {
     const color = flowerCount++ % 2 ? SAFFRON : VERMILION;
     const rings = [
-      ring(0.25 * (flowerCount % 2 ? 1 : -1), petals(8, 0, 4, 18, 5.5, color, 0.45, 1.2)),
-      ring(0, [{ dot: [0, 0], angle: 0, size: 2.4, color: SAFFRON, alpha: 0.7 }]),
+      ring(0.25 * (flowerCount % 2 ? 1 : -1), petals(8, 0, 4, 18, 5.5, color, 0.38, 1.2)),
+      ring(0, [{ dot: [0, 0], angle: 0, size: 2.4, color: SAFFRON, alpha: 0.6 }]),
     ];
     return { cx: x, cy: y, direction: 1, phase: Math.random() * TAU, rings, total: measure(rings) };
   }
@@ -229,13 +231,15 @@
       ctx.restore();
     }
 
-    // Flowers are drawn over the fade: they mark where you clicked.
+    // Flowers are drawn over the fade: they mark where you clicked, then fade away.
+    flowers = flowers.filter((fl) => now - fl.start < FLOWER_LIFE_MS);
     for (const fl of flowers) {
-      const f = (now - fl.start) / FLOWER_MS;
-      drawShape(fl, Math.min(1, f), t, false);
-      if (f < 1) revealing = true;
+      const age = now - fl.start;
+      ctx.globalAlpha = Math.min(1, (FLOWER_LIFE_MS - age) / FLOWER_FADE_MS);
+      drawShape(fl, fl.animate ? age / FLOWER_MS : 1, t, false);
+      ctx.globalAlpha = 1;
     }
-    return revealing;
+    return revealing || flowers.length > 0;
   }
 
   // Frames are paced to FRAME_MS. Every 2 seconds the achieved frame rate is
@@ -263,7 +267,7 @@
     // Keep animating while something moves; a still pattern stops once it is fully drawn.
     if (quality >= 2) {
       mandalas.forEach((m) => delete m.start);
-      flowers.forEach((fl) => (fl.start = -Infinity));
+      flowers.forEach((fl) => (fl.animate = false));
     }
     if (!moving() && !revealing) {
       if (quality >= 2) render(now);
@@ -300,7 +304,8 @@
     const selection = window.getSelection && window.getSelection();
     if (selection && !selection.isCollapsed) return;
     const fl = flower(e.clientX, e.clientY);
-    fl.start = moving() ? performance.now() : -Infinity;
+    fl.start = performance.now();
+    fl.animate = moving();
     flowers.push(fl);
     flowers = flowers.slice(-MAX_FLOWERS);
     if (!frame) frame = requestAnimationFrame(loop);
