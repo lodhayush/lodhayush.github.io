@@ -4,7 +4,8 @@
 //  - Clicking empty space adds nodes that stand out brightly, then fade to match the
 //    rest of the graph; when two added clusters meet, their link flashes.
 //  - The cursor links to nearby nodes and gently pushes them away.
-//  - Behind the text column the graph is faded, so it never competes with the content.
+//  - Dots and lines shine in open space and dim wherever they pass behind text, images
+//    or cards, so the content stays readable.
 //  - Hovering a project card pulses links from nearby nodes into the card.
 //  - Scrolling shifts the nodes slightly (parallax).
 // Runs only while the resolved theme is dark; animations are skipped under
@@ -25,7 +26,10 @@
   const AMBIENT_SPEED = 0.35; // faster nodes are damped back to this speed
   const FRESH_HOLD_MS = 2000; // added nodes stay bright this long...
   const FRESH_FADE_MS = 3000; // ...then fade into the graph over this long
-  const VEIL = 0.8; // share of the graph erased behind the text column
+  const VEIL = 0.8; // share of the graph erased behind content
+  const MASK_SCALE = 4; // the content mask is drawn at 1/4 resolution, which also softens its edges
+  const MASKED =
+    '[role="main"] :is(p, li, h1, h2, h3, h4, h5, h6, dt, dd, blockquote, pre, table, figure, img, svg, .card, .echarts, .badge, .btn), footer .container';
   const GOLD = "232, 163, 61";
   const CREAM = "245, 233, 212";
   const VERMILION = "224, 113, 75";
@@ -47,11 +51,15 @@
   let frame = null;
   let group = 0;
   let flashes = [];
-  let veil = null; // horizontal extent of the text column, where the graph is faded
+  let left = 0; // left edge of the open area (right of the fixed desktop sidebar)
+  const mask = document.createElement("canvas");
+  const maskCtx = mask.getContext("2d");
+  let maskEls = [];
   let hovered = null;
   let pinned = null;
   let activeCard = null;
   let lastScroll = window.scrollY;
+  let scrollDraw = false;
 
   const isDark = () => document.documentElement.getAttribute("data-theme") === "dark";
   const animated = () => !reducedMotion.matches && quality < 2;
@@ -265,23 +273,43 @@
     const base = Math.round(Math.min(200, Math.max(55, (width * height) / 7200)));
     maxNodes = quality ? Math.round(base * 1.2) : base * 2;
     if (nodes.length === 0) {
-      for (let i = 0; i < base; i++) nodes.push(makeNode(Math.random() * width, Math.random() * height, 0));
+      measureLayout();
+      for (let i = 0; i < base; i++) nodes.push(makeNode(left + Math.random() * (width - left), Math.random() * height, 0));
     } else {
       nodes.forEach((n) => {
-        n.x = Math.min(n.x, width);
+        n.x = clamp(n.x, left, width);
         n.y = Math.min(n.y, height);
       });
     }
     measureLayout();
   }
 
-  // Fonts and images can shift the text column, so this reruns once the page has loaded.
+  // Fonts and images can shift the layout, so this reruns once the page has loaded.
   function measureLayout() {
+    const sidebar = document.querySelector(".site-sidebar");
+    const s = sidebar && sidebar.getBoundingClientRect();
+    // Desktop: dots live right of the fixed sidebar so none hide (and link out) beneath it.
+    left = s && s.height >= height - 1 && s.left <= 0 ? s.right : 0;
+    mask.width = Math.ceil(width / MASK_SCALE);
+    mask.height = Math.ceil(height / MASK_SCALE);
+    maskEls = [...document.querySelectorAll(MASKED)];
     layoutHubs();
-    const main = document.querySelector('[role="main"]');
-    if (main) {
-      const m = main.getBoundingClientRect();
-      veil = { left: m.left, right: m.right };
+  }
+
+  // A low-resolution silhouette of the content currently on screen.
+  function drawMask() {
+    maskCtx.clearRect(0, 0, mask.width, mask.height);
+    maskCtx.fillStyle = "#000";
+    const pad = 6;
+    for (const el of maskEls) {
+      const r = el.getBoundingClientRect();
+      if (r.bottom < -pad || r.top > height + pad || r.width === 0 || r.height === 0) continue;
+      maskCtx.fillRect(
+        (r.left - pad) / MASK_SCALE,
+        (r.top - pad) / MASK_SCALE,
+        (r.width + pad * 2) / MASK_SCALE,
+        (r.height + pad * 2) / MASK_SCALE,
+      );
     }
   }
 
@@ -305,7 +333,7 @@
       }
       n.x += n.vx * dt;
       n.y += n.vy * dt;
-      if (n.x < 0) [n.x, n.vx] = [0, Math.abs(n.vx)];
+      if (n.x < left) [n.x, n.vx] = [left, Math.abs(n.vx)];
       if (n.x > width) [n.x, n.vx] = [width, -Math.abs(n.vx)];
       if (n.y < 0) [n.y, n.vy] = [0, Math.abs(n.vy)];
       if (n.y > height) [n.y, n.vy] = [height, -Math.abs(n.vy)];
@@ -381,7 +409,7 @@
         const d2 = dx * dx + dy * dy;
         if (d2 >= L2) continue;
         const closeness = 1 - Math.sqrt(d2) / linkDist;
-        batchLine(a.x, a.y, b.x, b.y, GOLD, 0.35 * closeness);
+        batchLine(a.x, a.y, b.x, b.y, GOLD, 0.45 * closeness);
         const fresh = Math.max(freshness(a, now), freshness(b, now));
         if (fresh > 0) freshLinks.push(a.x, a.y, b.x, b.y, fresh * (0.3 + 0.6 * closeness));
         if (a.group && b.group && a.group !== b.group && !(a.flashed && b.flashed)) {
@@ -427,23 +455,14 @@
       }
     }
 
-    // Fade everything behind the text column (soft edges) so the content stays readable.
-    if (veil) {
-      const edge = 48;
-      const left = veil.left - edge;
-      const w = veil.right - veil.left + edge * 2;
-      const k = edge / w;
-      const fade = ctx.createLinearGradient(left, 0, left + w, 0);
-      fade.addColorStop(0, "rgba(0, 0, 0, 0)");
-      fade.addColorStop(k, `rgba(0, 0, 0, ${VEIL})`);
-      fade.addColorStop(1 - k, `rgba(0, 0, 0, ${VEIL})`);
-      fade.addColorStop(1, "rgba(0, 0, 0, 0)");
-      ctx.save();
-      ctx.globalCompositeOperation = "destination-out";
-      ctx.fillStyle = fade;
-      ctx.fillRect(left, 0, w, height);
-      ctx.restore();
-    }
+    // Dim the graph wherever content sits over it (soft edges from the upscaled mask).
+    drawMask();
+    ctx.save();
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.globalAlpha = VEIL;
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(mask, 0, 0, mask.width * MASK_SCALE, mask.height * MASK_SCALE);
+    ctx.restore();
 
     // Newly added nodes and their links sit on top of the fade, bright at first,
     // then easing down until only the ordinary graph underneath remains.
@@ -619,11 +638,21 @@
     () => {
       const dy = window.scrollY - lastScroll;
       lastScroll = window.scrollY;
-      if (!isDark() || !animated()) return;
-      for (const n of nodes) {
-        n.y -= dy * 0.3;
-        if (n.y < 0) n.y += height;
-        else if (n.y > height) n.y -= height;
+      if (!isDark()) return;
+      if (animated()) {
+        for (const n of nodes) {
+          n.y -= dy * 0.3;
+          if (n.y < 0) n.y += height;
+          else if (n.y > height) n.y -= height;
+        }
+      }
+      // A still graph still needs redrawing so the dimming follows the scrolled content.
+      if (!frame && !scrollDraw) {
+        scrollDraw = true;
+        requestAnimationFrame(() => {
+          scrollDraw = false;
+          if (!frame && isDark()) draw(performance.now());
+        });
       }
     },
     { passive: true },
