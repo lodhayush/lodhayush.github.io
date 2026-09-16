@@ -1,7 +1,8 @@
 // Dark-mode background: a drifting graph of nodes and edges.
 //  - Labelled "research" nodes (from _data/research_graph.yml) link topics, papers
 //    and places; hover shows a label, click opens the page.
-//  - Clicking empty space adds nodes; when two added clusters meet, their link flashes.
+//  - Clicking empty space adds nodes that stand out brightly, then fade to match the
+//    rest of the graph; when two added clusters meet, their link flashes.
 //  - The cursor links to nearby nodes and gently pushes them away.
 //  - Behind the text column the graph is faded, so it never competes with the content.
 //  - Hovering a project card pulses links from nearby nodes into the card.
@@ -22,6 +23,8 @@
   const HUB_LINK_DIST = 120; // plain nodes link to research nodes within this distance
   const SPAWN_COUNT = 4; // nodes added per click
   const AMBIENT_SPEED = 0.35; // faster nodes are damped back to this speed
+  const FRESH_HOLD_MS = 2000; // added nodes stay bright this long...
+  const FRESH_FADE_MS = 3000; // ...then fade into the graph over this long
   const VEIL = 0.8; // share of the graph erased behind the text column
   const GOLD = "232, 163, 61";
   const CREAM = "245, 233, 212";
@@ -242,8 +245,8 @@
       y,
       vx: Math.cos(angle) * speed * (0.4 + Math.random()),
       vy: Math.sin(angle) * speed * (0.4 + Math.random()),
-      r: spawnGroup ? 2.6 : 1.4 + Math.random() * 1.4,
-      color: spawnGroup ? "#e0714b" : Math.random() < 0.7 ? "#e8a33d" : "#f5e9d4",
+      r: 1.4 + Math.random() * 1.4,
+      color: Math.random() < 0.7 ? "#e8a33d" : "#f5e9d4",
       group: spawnGroup,
       flashed: false,
       born: spawnGroup ? performance.now() : 0,
@@ -356,9 +359,17 @@
     ctx.fill();
   }
 
+  // 1 while an added node is new, easing to 0 as it fades into the graph.
+  function freshness(n, now) {
+    if (!n.born) return 0;
+    const k = 1 - (now - n.born - FRESH_HOLD_MS) / FRESH_FADE_MS;
+    return k <= 0 ? 0 : Math.min(1, k);
+  }
+
   function draw(now) {
     ctx.clearRect(0, 0, width, height);
     const L2 = linkDist * linkDist;
+    const freshLinks = [];
 
     // Links between plain nodes; the first link between two added clusters flashes.
     for (let i = 0; i < nodes.length; i++) {
@@ -369,7 +380,10 @@
         const dy = a.y - b.y;
         const d2 = dx * dx + dy * dy;
         if (d2 >= L2) continue;
-        batchLine(a.x, a.y, b.x, b.y, GOLD, 0.35 * (1 - Math.sqrt(d2) / linkDist));
+        const closeness = 1 - Math.sqrt(d2) / linkDist;
+        batchLine(a.x, a.y, b.x, b.y, GOLD, 0.35 * closeness);
+        const fresh = Math.max(freshness(a, now), freshness(b, now));
+        if (fresh > 0) freshLinks.push(a.x, a.y, b.x, b.y, fresh * (0.3 + 0.6 * closeness));
         if (a.group && b.group && a.group !== b.group && !(a.flashed && b.flashed)) {
           a.flashed = b.flashed = true;
           flashes.push({ a, b, t: now });
@@ -392,18 +406,7 @@
       line(a.x, a.y, b.x, b.y, lit ? GOLD : CREAM, lit ? 0.8 : 0.2, lit ? 1.6 : 1);
     }
 
-    flashes = flashes.filter((f) => now - f.t < 700);
-    for (const f of flashes) {
-      const k = 1 - (now - f.t) / 700;
-      line(f.a.x, f.a.y, f.b.x, f.b.y, CREAM, 0.9 * k, 1 + 1.5 * k);
-    }
-
-    for (const n of nodes) {
-      // Added nodes glow for a couple of seconds.
-      const glow = n.born ? Math.max(0, 1 - (now - n.born) / 2500) : 0;
-      if (glow > 0) dot(n.x, n.y, n.r + 6 * glow, `rgba(${VERMILION}, ${(0.25 * glow).toFixed(3)})`);
-      dot(n.x, n.y, n.r, n.color);
-    }
+    for (const n of nodes) dot(n.x, n.y, n.r, n.color);
 
     ctx.font = "600 12px 'Source Sans 3', sans-serif";
     ctx.textBaseline = "top";
@@ -440,6 +443,24 @@
       ctx.fillStyle = fade;
       ctx.fillRect(left, 0, w, height);
       ctx.restore();
+    }
+
+    // Newly added nodes and their links sit on top of the fade, bright at first,
+    // then easing down until only the ordinary graph underneath remains.
+    for (let i = 0; i < freshLinks.length; i += 5) {
+      line(freshLinks[i], freshLinks[i + 1], freshLinks[i + 2], freshLinks[i + 3], GOLD, freshLinks[i + 4], 1 + 0.6 * freshLinks[i + 4]);
+    }
+    for (const n of nodes) {
+      const fresh = freshness(n, now);
+      if (fresh <= 0) continue;
+      dot(n.x, n.y, n.r + 7 * fresh, `rgba(${VERMILION}, ${(0.28 * fresh).toFixed(3)})`);
+      dot(n.x, n.y, n.r + 1.2 * fresh, `rgba(${VERMILION}, ${fresh.toFixed(3)})`);
+    }
+
+    flashes = flashes.filter((f) => now - f.t < 700);
+    for (const f of flashes) {
+      const k = 1 - (now - f.t) / 700;
+      line(f.a.x, f.a.y, f.b.x, f.b.y, CREAM, 0.9 * k, 1 + 1.5 * k);
     }
 
     // Pulses from nearby nodes into the hovered project card.
@@ -527,6 +548,19 @@
     windowStart = windowFrames = 0;
   }
 
+  // When the graph is still, keep redrawing just until the added nodes have faded.
+  let fading = false;
+  function fadeLoop() {
+    fading = false;
+    if (frame || !isDark()) return;
+    const now = performance.now();
+    draw(now);
+    if (nodes.some((n) => freshness(n, now) > 0)) {
+      fading = true;
+      requestAnimationFrame(fadeLoop);
+    }
+  }
+
   /* Events --------------------------------------------------------------------*/
 
   document.addEventListener("click", (e) => {
@@ -559,7 +593,10 @@
     }
     // Keep the graph bounded: retire the oldest nodes first.
     if (nodes.length > maxNodes) nodes.splice(0, nodes.length - maxNodes);
-    if (!frame) draw(performance.now());
+    if (!frame && !fading) {
+      fading = true;
+      requestAnimationFrame(fadeLoop);
+    }
   });
 
   window.addEventListener("pointermove", (e) => {
