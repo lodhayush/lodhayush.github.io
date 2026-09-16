@@ -1,0 +1,67 @@
+# Labelled nodes in the dark-mode background graph (assets/js/constellation.js).
+# kind: topic | paper | place. `url` is optional; nodes with a url are clickable.
+# Edges join node ids and are always drawn.
+
+nodes:
+  - id: handwriting
+    label: Handwriting Recognition
+    kind: topic
+  - id: documents
+    label: Document Understanding
+    kind: topic
+  - id: rag
+    label: Multimodal RAG
+    kind: topic
+  - id: graphs
+    label: Document Graphs
+    kind: topic
+  - id: vlm
+    label: Vision-Language Models
+    kind: topic
+
+  - id: c2g
+    label: From Chunks to Graphs · ICDAR 2026
+    kind: paper
+    url: /projects/3_project/
+  - id: notesbank
+    label: NoTeS-Bank · ECML PKDD 2026
+    kind: paper
+    url: /projects/2_project/
+  - id: acpr
+    label: Online + Offline Handwriting · ACPR 2025
+    kind: paper
+    url: /projects/1_project/
+  - id: hnu
+    label: HNU Challenge · ICDAR 2025
+    kind: paper
+    url: /projects/4_project/
+
+  - id: nitd
+    label: NIT Delhi
+    kind: place
+    url: https://nitdelhi.ac.in/
+  - id: cvc
+    label: Computer Vision Center, Barcelona
+    kind: place
+    url: https://www.cvc.uab.es/
+  - id: isi
+    label: ISI Kolkata
+    kind: place
+    url: https://www.isical.ac.in/
+
+edges:
+  - [c2g, rag]
+  - [c2g, graphs]
+  - [c2g, documents]
+  - [c2g, cvc]
+  - [c2g, nitd]
+  - [notesbank, vlm]
+  - [notesbank, documents]
+  - [notesbank, handwriting]
+  - [acpr, handwriting]
+  - [acpr, isi]
+  - [hnu, handwriting]
+  - [hnu, notesbank]
+  - [hnu, isi]
+  - [rag, vlm]
+  - [graphs, documents]

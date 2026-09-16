@@ -1,6 +1,12 @@
-<!-- Dark-mode interactive graph background (see assets/js/constellation.js) -->
+<!-- Interactive backgrounds: research graph in dark mode, alpona in light mode -->
 <canvas class="constellation" aria-hidden="true"></canvas>
+<canvas class="alpona" aria-hidden="true"></canvas>
+<div class="graph-tooltip" role="tooltip" hidden></div>
+<script type="application/json" id="research-graph-data">
+  {{ site.data.research_graph | jsonify }}
+</script>
 <script defer src="{{ '/assets/js/constellation.js' | relative_url | bust_file_cache }}"></script>
+<script defer src="{{ '/assets/js/alpona.js' | relative_url | bust_file_cache }}"></script>
 
 <header class="site-sidebar" role="banner">
   <div class="sidebar-inner">

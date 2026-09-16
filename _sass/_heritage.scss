@@ -483,9 +483,10 @@ body.is-about .sidebar-avatar {
   }
 }
 
-/* Dark-mode graph background --------------------------------------------------*/
+/* Interactive backgrounds (assets/js/constellation.js, assets/js/alpona.js) ---*/
 
-canvas.constellation {
+canvas.constellation,
+canvas.alpona {
   position: fixed;
   inset: 0;
   width: 100vw;
@@ -493,8 +494,49 @@ canvas.constellation {
   z-index: -1;
   pointer-events: none;
   display: none;
+
+  &.is-active {
+    display: block;
+  }
 }
 
-html[data-theme="dark"] canvas.constellation.is-active {
-  display: block;
+html.graph-hover,
+html.graph-hover body {
+  cursor: pointer;
+}
+
+.graph-tooltip {
+  position: fixed;
+  z-index: 1050;
+  max-width: 16rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid rgba(232, 163, 61, 0.6);
+  border-radius: 4px;
+  background: #{$indigo-deep};
+  color: #efe6d6;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+
+  .graph-tooltip-kind {
+    display: block;
+    color: #{$saffron};
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .graph-tooltip-label {
+    color: #efe6d6;
+  }
+
+  a.graph-tooltip-label:hover {
+    color: #{$saffron};
+  }
+}
+
+html[data-theme="dark"] .projects .card.graph-linked {
+  box-shadow:
+    0 0 0 1px rgba(232, 163, 61, 0.6),
+    0 0 28px rgba(232, 163, 61, 0.25);
 }
