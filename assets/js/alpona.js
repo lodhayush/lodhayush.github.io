@@ -216,12 +216,7 @@
     for (const el of maskEls) {
       const r = el.getBoundingClientRect();
       if (r.bottom < -pad || r.top > height + pad || r.width === 0 || r.height === 0) continue;
-      maskCtx.fillRect(
-        (r.left - pad) / MASK_SCALE,
-        (r.top - pad) / MASK_SCALE,
-        (r.width + pad * 2) / MASK_SCALE,
-        (r.height + pad * 2) / MASK_SCALE,
-      );
+      maskCtx.fillRect((r.left - pad) / MASK_SCALE, (r.top - pad) / MASK_SCALE, (r.width + pad * 2) / MASK_SCALE, (r.height + pad * 2) / MASK_SCALE);
     }
   }
 
@@ -344,7 +339,7 @@
         if (isLight() && !frame) render(performance.now());
       });
     },
-    { passive: true },
+    { passive: true }
   );
   document.addEventListener("visibilitychange", start);
   reducedMotion.addEventListener("change", start);

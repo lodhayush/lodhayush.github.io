@@ -124,21 +124,21 @@
   // page; it collapses again on a click outside it, on Escape, or on navigation.
   (function () {
     const root = document.documentElement;
-    const sidebar = document.querySelector(".site-sidebar");
-    const button = sidebar.querySelector(".sidebar-toggle");
+    const sidebar = document.querySelector('.site-sidebar');
+    const button = sidebar.querySelector('.sidebar-toggle');
     const setExpanded = (expanded) => {
-      root.classList.toggle("sidebar-expanded", expanded);
-      const label = expanded ? "Collapse sidebar" : "Expand sidebar";
-      button.setAttribute("aria-expanded", String(expanded));
-      button.setAttribute("aria-label", label);
+      root.classList.toggle('sidebar-expanded', expanded);
+      const label = expanded ? 'Collapse sidebar' : 'Expand sidebar';
+      button.setAttribute('aria-expanded', String(expanded));
+      button.setAttribute('aria-label', label);
       button.title = label;
     };
-    button.addEventListener("click", () => setExpanded(!root.classList.contains("sidebar-expanded")));
-    document.addEventListener("click", (e) => {
-      if (root.classList.contains("sidebar-expanded") && !sidebar.contains(e.target)) setExpanded(false);
+    button.addEventListener('click', () => setExpanded(!root.classList.contains('sidebar-expanded')));
+    document.addEventListener('click', (e) => {
+      if (root.classList.contains('sidebar-expanded') && !sidebar.contains(e.target)) setExpanded(false);
     });
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && root.classList.contains("sidebar-expanded")) {
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && root.classList.contains('sidebar-expanded')) {
         setExpanded(false);
         button.focus();
       }

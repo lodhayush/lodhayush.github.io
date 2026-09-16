@@ -304,12 +304,7 @@
     for (const el of maskEls) {
       const r = el.getBoundingClientRect();
       if (r.bottom < -pad || r.top > height + pad || r.width === 0 || r.height === 0) continue;
-      maskCtx.fillRect(
-        (r.left - pad) / MASK_SCALE,
-        (r.top - pad) / MASK_SCALE,
-        (r.width + pad * 2) / MASK_SCALE,
-        (r.height + pad * 2) / MASK_SCALE,
-      );
+      maskCtx.fillRect((r.left - pad) / MASK_SCALE, (r.top - pad) / MASK_SCALE, (r.width + pad * 2) / MASK_SCALE, (r.height + pad * 2) / MASK_SCALE);
     }
   }
 
@@ -500,7 +495,6 @@
         dot(o.n.x + (o.px - o.n.x) * t, o.n.y + (o.py - o.n.y) * t, 2.2, `rgb(${CREAM})`);
       });
     }
-
   }
 
   // Frames are paced to FRAME_MS. If most frames arrive far later than asked, the
@@ -655,7 +649,7 @@
         });
       }
     },
-    { passive: true },
+    { passive: true }
   );
 
   document.querySelectorAll(".projects .card").forEach((card) => {
