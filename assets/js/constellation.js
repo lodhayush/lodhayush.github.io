@@ -17,7 +17,7 @@
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   const LINK_DIST = 140; // max distance at which two nodes are joined
-  const SHAPE_LINK_DIST = 26; // link distance while nodes form the name
+  const SHAPE_NODES = 260; // nodes used to form the name
   const CURSOR_DIST = 180; // cursor links to nodes within this distance
   const REPEL_DIST = 110; // nodes closer than this to the cursor are pushed away
   const HUB_LINK_DIST = 120; // plain nodes link to research nodes within this distance
@@ -41,6 +41,7 @@
   let height = 0;
   let maxNodes = 0;
   let linkDist = LINK_DIST;
+  let shapeLinkDist = 20;
   let cursor = null;
   let frame = null;
   let group = 0;
@@ -119,9 +120,14 @@
       const rad = 0.35 + 0.12 * ((i % 3) / 2);
       h.x = (minX + maxX) / 2 + Math.cos(a) * (maxX - minX) * rad;
       h.y = (minY + maxY) / 2 + Math.sin(a) * (maxY - minY) * rad;
+      h.column = null;
+      h.side = null;
       if (leftWide || rightWide) {
+        // Each hub gets a margin column: alternate between them when both are wide.
         const useLeft = leftWide && (!rightWide || i % 2 === 0);
-        h.x = useLeft ? reg.left + (reg.contentLeft - reg.left) / 2 : reg.contentRight + (width - reg.contentRight) / 2;
+        h.column = useLeft ? [reg.left, reg.contentLeft] : [reg.contentRight, width];
+        h.side = useLeft ? "left" : "right";
+        h.x = (h.column[0] + h.column[1]) / 2;
       }
     });
 
@@ -133,7 +139,7 @@
           const dx = hubs[i].x - hubs[j].x;
           const dy = hubs[i].y - hubs[j].y;
           const d2 = Math.max(dx * dx + dy * dy, 100);
-          const f = 9000 / d2;
+          const f = 16000 / d2;
           const d = Math.sqrt(d2);
           fx[i] += (dx / d) * f;
           fy[i] += (dy / d) * f;
@@ -148,22 +154,32 @@
         const dy = b.y - a.y;
         const d = Math.max(Math.hypot(dx, dy), 1);
         const f = (d - 150) * 0.02;
-        fx[i] += (dx / d) * f;
+        // Edges between the two margins only pull vertically.
+        const pullX = a.side === b.side;
+        if (pullX) fx[i] += (dx / d) * f;
         fy[i] += (dy / d) * f;
-        fx[j] -= (dx / d) * f;
+        if (pullX) fx[j] -= (dx / d) * f;
         fy[j] -= (dy / d) * f;
       });
       hubs.forEach((h, i) => {
-        // Keep out of the content column when a margin can hold the hub.
-        if ((leftWide || rightWide) && h.x > reg.contentLeft - 20 && h.x < reg.contentRight + 20) {
-          const toLeft = h.x - reg.contentLeft < reg.contentRight - h.x;
-          const dir = leftWide && (toLeft || !rightWide) ? -1 : 1;
-          fx[i] += dir * 8;
-        }
+        if (h.column) fx[i] += ((h.column[0] + h.column[1]) / 2 - h.x) * 0.05;
         h.x = clamp(h.x + clamp(fx[i], -12, 12), minX, maxX);
         h.y = clamp(h.y + clamp(fy[i], -12, 12), minY, maxY);
+        // Hubs with a margin column stay inside it, clear of the text.
+        if (h.column) h.x = clamp(h.x, h.column[0] + 50, h.column[1] - 50);
       });
     }
+
+    // Space the hubs in each margin evenly enough that their labels never overlap.
+    ["left", "right"].forEach((side) => {
+      const col = hubs.filter((h) => h.side === side).sort((p, q) => p.y - q.y);
+      if (col.length < 2) return;
+      const gap = Math.min(90, (maxY - minY) / (col.length - 1));
+      for (let k = 1; k < col.length; k++) col[k].y = Math.max(col[k].y, col[k - 1].y + gap);
+      const overflow = col[col.length - 1].y - maxY;
+      if (overflow > 0) col.forEach((h) => (h.y = Math.max(minY, h.y - overflow)));
+      for (let k = 1; k < col.length; k++) col[k].y = Math.max(col[k].y, col[k - 1].y + gap);
+    });
 
     ctx.font = "600 12px 'Source Sans 3', sans-serif";
     hubs.forEach((h) => {
@@ -171,11 +187,8 @@
       h.ay = h.y;
       h.labelBox = null;
       // Labels are drawn only for hubs sitting in a margin; others show on hover.
-      let colLeft = null;
-      let colRight = null;
-      if (leftWide && h.x < reg.contentLeft - 10) [colLeft, colRight] = [reg.left, reg.contentLeft];
-      if (rightWide && h.x > reg.contentRight + 10) [colLeft, colRight] = [reg.contentRight, width];
-      if (colLeft === null) return;
+      if (!h.column) return;
+      const [colLeft, colRight] = h.column;
       const lines = h.label.split(" · ");
       const w = Math.max(...lines.map((l) => ctx.measureText(l).width));
       if (w > colRight - colLeft - 16) return;
@@ -264,11 +277,13 @@
     layoutHubs();
   }
 
-  function step(now) {
+  // dt is elapsed time in 60 fps frames, so motion speed is independent of refresh rate.
+  function step(now, dt) {
+    const ease = (k) => 1 - Math.pow(1 - k, dt);
     for (const n of nodes) {
       if (formation && n.tx !== undefined) {
-        n.x += (n.tx - n.x) * 0.07;
-        n.y += (n.ty - n.y) * 0.07;
+        n.x += (n.tx - n.x) * ease(0.08);
+        n.y += (n.ty - n.y) * ease(0.08);
         continue;
       }
       if (cursor) {
@@ -277,17 +292,17 @@
         const d2 = dx * dx + dy * dy;
         if (d2 < REPEL_DIST * REPEL_DIST && d2 > 1) {
           const d = Math.sqrt(d2);
-          const f = (1 - d / REPEL_DIST) * 0.12;
+          const f = (1 - d / REPEL_DIST) * 0.12 * dt;
           n.vx += (dx / d) * f;
           n.vy += (dy / d) * f;
         }
       }
       if (Math.hypot(n.vx, n.vy) > AMBIENT_SPEED) {
-        n.vx *= 0.985;
-        n.vy *= 0.985;
+        n.vx *= Math.pow(0.985, dt);
+        n.vy *= Math.pow(0.985, dt);
       }
-      n.x += n.vx;
-      n.y += n.vy;
+      n.x += n.vx * dt;
+      n.y += n.vy * dt;
       if (n.x < 0) [n.x, n.vx] = [0, Math.abs(n.vx)];
       if (n.x > width) [n.x, n.vx] = [width, -Math.abs(n.vx)];
       if (n.y < 0) [n.y, n.vy] = [0, Math.abs(n.vy)];
@@ -302,15 +317,18 @@
         const a = Math.random() * Math.PI * 2;
         n.vx = Math.cos(a) * 1.2;
         n.vy = Math.sin(a) * 1.2;
+        if (n.borrowed) n.fading = now;
       }
       formation = null;
+      setTimeout(() => canvas.classList.remove("is-raised"), 1200);
     }
-    linkDist += ((formation ? SHAPE_LINK_DIST : LINK_DIST) - linkDist) * 0.06;
+    linkDist += ((formation ? shapeLinkDist : LINK_DIST) - linkDist) * ease(0.08);
 
     for (const h of hubs) {
       h.x = h.ax + Math.sin(now * 0.0004 + h.phase) * 6;
       h.y = h.ay + Math.cos(now * 0.0005 + h.phase) * 6;
     }
+    nodes = nodes.filter((n) => !n.fading || now - n.fading < 1500);
     trail = trail.filter((p) => now - p.t < 600);
   }
 
@@ -323,6 +341,30 @@
     ctx.moveTo(ax, ay);
     ctx.lineTo(bx, by);
     ctx.stroke();
+  }
+
+  // Faint links are batched by colour and opacity (20 levels) so each batch is one stroke.
+  const batches = new Map();
+  function batchLine(ax, ay, bx, by, rgb, alpha) {
+    const level = Math.round(alpha * 20);
+    if (level <= 0) return;
+    const key = `${rgb}|${level}`;
+    if (!batches.has(key)) batches.set(key, []);
+    batches.get(key).push(ax, ay, bx, by);
+  }
+  function flushLines() {
+    ctx.lineWidth = 1;
+    for (const [key, segs] of batches) {
+      const [rgb, level] = key.split("|");
+      ctx.strokeStyle = `rgba(${rgb}, ${level / 20})`;
+      ctx.beginPath();
+      for (let i = 0; i < segs.length; i += 4) {
+        ctx.moveTo(segs[i], segs[i + 1]);
+        ctx.lineTo(segs[i + 2], segs[i + 3]);
+      }
+      ctx.stroke();
+    }
+    batches.clear();
   }
 
   function dot(x, y, r, fill) {
@@ -345,7 +387,7 @@
         const dy = a.y - b.y;
         const d2 = dx * dx + dy * dy;
         if (d2 >= L2) continue;
-        line(a.x, a.y, b.x, b.y, GOLD, 0.35 * (1 - Math.sqrt(d2) / linkDist));
+        batchLine(a.x, a.y, b.x, b.y, GOLD, 0.35 * (1 - Math.sqrt(d2) / linkDist));
         if (a.group && b.group && a.group !== b.group && !(a.flashed && b.flashed) && !formation) {
           a.flashed = b.flashed = true;
           flashes.push({ a, b, t: now });
@@ -353,15 +395,16 @@
       }
       if (cursor && !formation) {
         const d = Math.hypot(a.x - cursor.x, a.y - cursor.y);
-        if (d < CURSOR_DIST) line(a.x, a.y, cursor.x, cursor.y, CREAM, 0.4 * (1 - d / CURSOR_DIST));
+        if (d < CURSOR_DIST) batchLine(a.x, a.y, cursor.x, cursor.y, CREAM, 0.4 * (1 - d / CURSOR_DIST));
       }
       if (!formation) {
         for (const h of hubs) {
           const d = Math.hypot(a.x - h.x, a.y - h.y);
-          if (d < HUB_LINK_DIST) line(a.x, a.y, h.x, h.y, GOLD, 0.2 * (1 - d / HUB_LINK_DIST));
+          if (d < HUB_LINK_DIST) batchLine(a.x, a.y, h.x, h.y, GOLD, 0.2 * (1 - d / HUB_LINK_DIST));
         }
       }
     }
+    flushLines();
 
     // Research edges; the hovered node's edges are highlighted.
     for (const [a, b] of hubEdges) {
@@ -398,7 +441,9 @@
       // Added nodes glow for a couple of seconds.
       const glow = n.born ? Math.max(0, 1 - (now - n.born) / 2500) : 0;
       if (glow > 0) dot(n.x, n.y, n.r + 6 * glow, `rgba(${VERMILION}, ${(0.25 * glow).toFixed(3)})`);
+      ctx.globalAlpha = n.fading ? Math.max(0, 1 - (now - n.fading) / 1500) : 1;
       dot(n.x, n.y, n.r, n.color);
+      ctx.globalAlpha = 1;
     }
 
     ctx.font = "600 12px 'Source Sans 3', sans-serif";
@@ -447,9 +492,12 @@
     }
   }
 
+  let lastFrame = 0;
   function loop() {
     const now = performance.now();
-    step(now);
+    const dt = lastFrame ? Math.min(4, (now - lastFrame) / 16.667) : 1;
+    lastFrame = now;
+    step(now, dt);
     draw(now);
     frame = requestAnimationFrame(loop);
   }
@@ -470,6 +518,7 @@
   function stop() {
     if (frame) cancelAnimationFrame(frame);
     frame = null;
+    lastFrame = 0;
   }
 
   /* Name writing and formation ------------------------------------------------*/
@@ -508,7 +557,7 @@
 
   function formName() {
     const reg = region();
-    const size = Math.min((width - reg.left) * 0.26, height * 0.45, 260);
+    const size = Math.min((width - reg.left) * 0.3, height * 0.6, 320);
     renderName(size).then((font) => {
       const off = document.createElement("canvas");
       off.width = Math.ceil(width);
@@ -518,22 +567,39 @@
       c.textAlign = "center";
       c.textBaseline = "middle";
       c.fillStyle = "#fff";
-      c.fillText(NAME, (reg.left + width) / 2, height / 2);
+      c.fillText(NAME, (reg.left + width) / 2, (reg.top + height) / 2);
       const data = c.getImageData(0, 0, off.width, off.height).data;
-      const gap = Math.max(5, Math.round(size / 24));
-      const points = [];
-      for (let y = 0; y < off.height; y += gap) {
-        for (let x = 0; x < off.width; x += gap) {
-          if (data[(y * off.width + x) * 4 + 3] > 128) points.push([x, y]);
+      const sample = (gap) => {
+        const pts = [];
+        for (let y = 0; y < off.height; y += gap) {
+          for (let x = 0; x < off.width; x += gap) {
+            if (data[(y * off.width + x) * 4 + 3] > 128) pts.push([x, y]);
+          }
         }
+        return pts;
+      };
+      // An even grid over the letters reads far better than a random subset,
+      // so widen the grid until there are about as many points as the budget.
+      const budget = Math.max(nodes.length, SHAPE_NODES);
+      let gap = 4;
+      let points = sample(gap);
+      while (points.length > budget && gap < 40) points = sample(++gap);
+
+      // Borrow extra nodes for the shape; they fade away after it breaks up.
+      while (nodes.length < points.length) {
+        const n = makeNode(Math.random() * width, Math.random() * height, 0);
+        n.borrowed = true;
+        nodes.push(n);
       }
       for (let i = points.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [points[i], points[j]] = [points[j], points[i]];
       }
-      const count = Math.min(points.length, nodes.length);
-      for (let i = 0; i < count; i++) [nodes[i].tx, nodes[i].ty] = points[i];
-      formation = { until: performance.now() + 3200 };
+      points.forEach((pt, i) => ([nodes[i].tx, nodes[i].ty] = pt));
+      shapeLinkDist = gap * 1.5;
+      formation = { until: performance.now() + 3500 };
+      // Lift the graph above the page while the name is shown.
+      canvas.classList.add("is-raised");
     });
   }
 

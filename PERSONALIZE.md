@@ -93,3 +93,7 @@ details in `_data/cv.yml` were filled in from `assets/pdf/Curriculum_Vitae.pdf`.
 - The profile photo renders as a small circular avatar (rule in
   `_sass/_components.scss`); set `image_circular: false` in `_pages/about.md`
   to switch back to the large rectangular style.
+- Interactive backgrounds: dark mode draws a research graph
+  (`assets/js/constellation.js`), light mode draws alpona mandalas
+  (`assets/js/alpona.js`). Edit the labelled research nodes and their links in
+  `_data/research_graph.yml` when new papers or topics are added.
