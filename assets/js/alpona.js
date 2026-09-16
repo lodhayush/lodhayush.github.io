@@ -2,6 +2,7 @@
 // themselves in the corners, then keep gently moving: their rings turn in
 // alternating directions, the whole motif breathes, and a shimmer travels
 // around the dotted rings. Clicking empty space adds a small turning flower.
+// The pattern dims wherever it passes behind text, images or cards.
 // Runs only while the resolved theme is light; still under
 // prefers-reduced-motion, and steps down to still if the page can't keep up.
 (function () {
@@ -17,7 +18,10 @@
   const MAX_FLOWERS = 40;
   const FRAME_MS = [33, 50]; // frame interval at full and reduced quality
   const SPEED = 1.8; // overall pace of turning, breathing and shimmer
-  const VEIL = 0.4; // share of the pattern erased behind the text column
+  const VEIL = 0.75; // share of the pattern erased behind content
+  const MASK_SCALE = 4; // the content mask is drawn at 1/4 resolution, which also softens its edges
+  const MASKED =
+    '[role="main"] :is(p, li, h1, h2, h3, h4, h5, h6, dt, dd, blockquote, pre, table, figure, img, svg, .card, .echarts, .badge, .btn), footer .container';
   const VERMILION = "185, 58, 20";
   const SAFFRON = "200, 130, 30";
   const INTERACTIVE =
@@ -31,7 +35,9 @@
   let drawnOnce = false;
   let flowerCount = 0;
   let quality = 0; // 0 full, 1 lower frame rate, 2 still
-  let veil = null;
+  const mask = document.createElement("canvas");
+  const maskCtx = mask.getContext("2d");
+  let maskEls = [];
 
   const isLight = () => document.documentElement.getAttribute("data-theme") === "light";
   const moving = () => !reducedMotion.matches && quality < 2;
@@ -197,10 +203,25 @@
     mandalas = [mandala(width - R * 0.22, R * 0.22, R, 1, 0), mandala(left + R * 0.22, height - R * 0.22, R, -1, 1.3)];
     mandalas.forEach((m, i) => (m.start = starts[i]));
 
-    const main = document.querySelector('[role="main"]');
-    if (main) {
-      const m = main.getBoundingClientRect();
-      veil = { left: m.left, right: m.right };
+    mask.width = Math.ceil(width / MASK_SCALE);
+    mask.height = Math.ceil(height / MASK_SCALE);
+    maskEls = [...document.querySelectorAll(MASKED)];
+  }
+
+  // A low-resolution silhouette of the content currently on screen.
+  function drawMask() {
+    maskCtx.clearRect(0, 0, mask.width, mask.height);
+    maskCtx.fillStyle = "#000";
+    const pad = 6;
+    for (const el of maskEls) {
+      const r = el.getBoundingClientRect();
+      if (r.bottom < -pad || r.top > height + pad || r.width === 0 || r.height === 0) continue;
+      maskCtx.fillRect(
+        (r.left - pad) / MASK_SCALE,
+        (r.top - pad) / MASK_SCALE,
+        (r.width + pad * 2) / MASK_SCALE,
+        (r.height + pad * 2) / MASK_SCALE,
+      );
     }
   }
 
@@ -213,23 +234,14 @@
       drawShape(m, 1 - Math.pow(1 - Math.min(1, f), 2), t, moving());
       if (f < 1) revealing = true;
     }
-    // Fade the pattern behind the text column (soft edges) so the content stays readable.
-    if (veil) {
-      const edge = 48;
-      const left = veil.left - edge;
-      const w = veil.right - veil.left + edge * 2;
-      const k = edge / w;
-      const fade = ctx.createLinearGradient(left, 0, left + w, 0);
-      fade.addColorStop(0, "rgba(0, 0, 0, 0)");
-      fade.addColorStop(k, `rgba(0, 0, 0, ${VEIL})`);
-      fade.addColorStop(1 - k, `rgba(0, 0, 0, ${VEIL})`);
-      fade.addColorStop(1, "rgba(0, 0, 0, 0)");
-      ctx.save();
-      ctx.globalCompositeOperation = "destination-out";
-      ctx.fillStyle = fade;
-      ctx.fillRect(left, 0, w, height);
-      ctx.restore();
-    }
+    // Dim the pattern wherever content sits over it (soft edges from the upscaled mask).
+    drawMask();
+    ctx.save();
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.globalAlpha = VEIL;
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(mask, 0, 0, mask.width * MASK_SCALE, mask.height * MASK_SCALE);
+    ctx.restore();
 
     // Flowers are drawn over the fade: they mark where you clicked, then fade away.
     flowers = flowers.filter((fl) => now - fl.start < FLOWER_LIFE_MS);
@@ -320,6 +332,20 @@
     build();
     if (isLight() && !frame) render(performance.now());
   });
+  // When the pattern is still, redraw on scroll so the dimming follows the content.
+  let scrollDraw = false;
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (!isLight() || frame || scrollDraw) return;
+      scrollDraw = true;
+      requestAnimationFrame(() => {
+        scrollDraw = false;
+        if (isLight() && !frame) render(performance.now());
+      });
+    },
+    { passive: true },
+  );
   document.addEventListener("visibilitychange", start);
   reducedMotion.addEventListener("change", start);
   new MutationObserver(start).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
