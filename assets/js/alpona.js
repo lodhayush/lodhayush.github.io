@@ -174,13 +174,29 @@
     return busy;
   }
 
+  // Drawn at up to ~30 fps; if frames keep arriving late, finish the drawing at once.
+  let lastFrame = 0;
+  let lateFrames = 0;
   function loop() {
-    frame = render(performance.now()) ? requestAnimationFrame(loop) : null;
+    const now = performance.now();
+    if (lastFrame && now - lastFrame < 31) {
+      frame = requestAnimationFrame(loop);
+      return;
+    }
+    if (lastFrame && now - lastFrame > 150 && ++lateFrames >= 5) {
+      mandalas.forEach((m) => delete m.start);
+      flowers.forEach((fl) => (fl.start = -Infinity));
+    }
+    lastFrame = now;
+    const busy = render(now);
+    frame = busy ? requestAnimationFrame(loop) : null;
+    if (!busy) lastFrame = 0;
   }
 
   function start() {
     if (frame) cancelAnimationFrame(frame);
     frame = null;
+    lastFrame = 0;
     if (!isLight()) {
       canvas.classList.remove("is-active");
       return;

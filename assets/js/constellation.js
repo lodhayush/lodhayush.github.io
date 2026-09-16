@@ -17,7 +17,8 @@
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   const LINK_DIST = 140; // max distance at which two nodes are joined
-  const SHAPE_NODES = 260; // nodes used to form the name
+  const SHAPE_NODES = 200; // nodes used to form the name
+  const FRAME_MS = [33, 50]; // frame interval at full and reduced quality (~30 and 20 fps)
   const CURSOR_DIST = 180; // cursor links to nodes within this distance
   const REPEL_DIST = 110; // nodes closer than this to the cursor are pushed away
   const HUB_LINK_DIST = 120; // plain nodes link to research nodes within this distance
@@ -40,6 +41,7 @@
   let width = 0;
   let height = 0;
   let maxNodes = 0;
+  let quality = 0; // 0 full, 1 fewer nodes and lower frame rate, 2 still (redraws on interaction only)
   let linkDist = LINK_DIST;
   let shapeLinkDist = 20;
   let cursor = null;
@@ -56,7 +58,7 @@
   let lastScroll = window.scrollY;
 
   const isDark = () => document.documentElement.getAttribute("data-theme") === "dark";
-  const animated = () => !reducedMotion.matches;
+  const animated = () => !reducedMotion.matches && quality < 2;
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
   /* Research nodes ------------------------------------------------------------*/
@@ -264,8 +266,8 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     // Density scales with viewport area, so phones get a lighter graph.
-    const base = Math.round(Math.min(160, Math.max(45, (width * height) / 9000)));
-    maxNodes = base * 2;
+    const base = Math.round(Math.min(70, Math.max(24, (width * height) / 20000)));
+    maxNodes = quality ? Math.round(base * 0.6) + 15 : base + 30;
     if (nodes.length === 0) {
       for (let i = 0; i < base; i++) nodes.push(makeNode(Math.random() * width, Math.random() * height, 0));
     } else {
@@ -492,14 +494,53 @@
     }
   }
 
+  // Frames are paced to FRAME_MS. If most frames arrive far later than asked, the
+  // page is struggling, so step down: first fewer nodes at a lower frame rate,
+  // then a still graph that redraws only when you interact with it.
   let lastFrame = 0;
+  let windowStart = 0;
+  let windowFrames = 0;
   function loop() {
     const now = performance.now();
-    const dt = lastFrame ? Math.min(4, (now - lastFrame) / 16.667) : 1;
-    lastFrame = now;
-    step(now, dt);
-    draw(now);
     frame = requestAnimationFrame(loop);
+    const target = FRAME_MS[quality];
+    if (lastFrame && now - lastFrame < target - 2) return;
+    const elapsed = lastFrame ? now - lastFrame : target;
+    lastFrame = now;
+
+    // Every 2 seconds, compare the frames actually drawn with the target rate.
+    if (!windowStart) windowStart = now;
+    windowFrames++;
+    if (now - windowStart >= 2000) {
+      const achieved = (windowFrames * 1000) / (now - windowStart);
+      windowStart = now;
+      windowFrames = 0;
+      if (achieved < (1000 / target) * 0.4) {
+        degrade();
+        if (!frame) return;
+      }
+    }
+
+    step(now, Math.min(4, elapsed / 16.667));
+    draw(now);
+  }
+
+  function degrade() {
+    quality++;
+    if (quality === 1) {
+      nodes = nodes.slice(Math.floor(nodes.length * 0.4));
+      maxNodes = Math.round(maxNodes * 0.6);
+      return;
+    }
+    quality = 2;
+    formation = null;
+    canvas.classList.remove("is-raised");
+    nodes.forEach((n) => delete n.tx);
+    nodes = nodes.filter((n) => !n.borrowed);
+    cursor = null;
+    trail = [];
+    stop();
+    draw(performance.now());
   }
 
   function start() {
@@ -519,6 +560,7 @@
     if (frame) cancelAnimationFrame(frame);
     frame = null;
     lastFrame = 0;
+    windowStart = windowFrames = 0;
   }
 
   /* Name writing and formation ------------------------------------------------*/
@@ -578,6 +620,7 @@
         }
         return pts;
       };
+      if (!animated() || !isDark()) return; // quality dropped or theme changed meanwhile
       // An even grid over the letters reads far better than a random subset,
       // so widen the grid until there are about as many points as the budget.
       const budget = Math.max(nodes.length, SHAPE_NODES);
@@ -685,10 +728,12 @@
       if (!isDark()) return;
       activeCard = card;
       card.classList.add("graph-linked");
+      if (!frame) draw(performance.now());
     });
     card.addEventListener("mouseleave", () => {
       activeCard = null;
       card.classList.remove("graph-linked");
+      if (!frame && isDark()) draw(performance.now());
     });
   });
 
