@@ -9,6 +9,7 @@ last_name: Lodh
 native_name: আযুষ # Bengali name shown in the sidebar
 sidebar_tagline: Handwriting · Documents · Vision
 sidebar_location: New Delhi, India
+research_graph: false # labelled research nodes in the dark-mode background (_data/research_graph.yml)
 email: ayushlodh26@gmail.com
 description: >
   Master's student in Computer Science & Engineering at NIT Delhi.

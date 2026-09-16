@@ -96,4 +96,6 @@ details in `_data/cv.yml` were filled in from `assets/pdf/Curriculum_Vitae.pdf`.
 - Interactive backgrounds: dark mode draws a research graph
   (`assets/js/constellation.js`), light mode draws alpona mandalas
   (`assets/js/alpona.js`). Edit the labelled research nodes and their links in
-  `_data/research_graph.yml` when new papers or topics are added.
+  `_data/research_graph.yml` when new papers or topics are added. The labelled
+  research nodes are currently off; set `research_graph: true` in `_config.yml`
+  to show them.
