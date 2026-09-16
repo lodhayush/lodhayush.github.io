@@ -44,7 +44,7 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     // Density scales with viewport area, so phones get a lighter graph.
-    const base = Math.round(Math.min(90, Math.max(28, (width * height) / 16000)));
+    const base = Math.round(Math.min(160, Math.max(45, (width * height) / 9000)));
     maxNodes = base * 2;
     if (nodes.length === 0) {
       for (let i = 0; i < base; i++) nodes.push(makeNode(Math.random() * width, Math.random() * height, false));
