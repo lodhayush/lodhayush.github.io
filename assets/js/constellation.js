@@ -4,7 +4,6 @@
 //  - Clicking empty space adds nodes; when two added clusters meet, their link flashes.
 //  - The cursor leaves a fading ink trail and gently pushes nodes away.
 //  - Double-clicking empty space writes the Bengali name in ink.
-//  - Every 20th click, the nodes briefly gather into the Bengali name.
 //  - Hovering a project card pulses links from nearby nodes into the card.
 //  - Scrolling shifts the nodes slightly (parallax).
 // Runs only while the resolved theme is dark; animations are skipped under
@@ -17,13 +16,11 @@
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   const LINK_DIST = 140; // max distance at which two nodes are joined
-  const SHAPE_NODES = 200; // nodes used to form the name
   const FRAME_MS = [33, 50]; // frame interval at full and reduced quality (~30 and 20 fps)
   const CURSOR_DIST = 180; // cursor links to nodes within this distance
   const REPEL_DIST = 110; // nodes closer than this to the cursor are pushed away
   const HUB_LINK_DIST = 120; // plain nodes link to research nodes within this distance
   const SPAWN_COUNT = 4; // nodes added per click
-  const EGG_EVERY = 20; // clicks between name formations
   const AMBIENT_SPEED = 0.35; // faster nodes are damped back to this speed
   const GOLD = "232, 163, 61";
   const CREAM = "245, 233, 212";
@@ -43,15 +40,12 @@
   let maxNodes = 0;
   let quality = 0; // 0 full, 1 fewer nodes and lower frame rate, 2 still (redraws on interaction only)
   let linkDist = LINK_DIST;
-  let shapeLinkDist = 20;
   let cursor = null;
   let frame = null;
   let group = 0;
-  let clicks = 0;
   let flashes = [];
   let trail = [];
   let writings = [];
-  let formation = null;
   let hovered = null;
   let pinned = null;
   let activeCard = null;
@@ -281,13 +275,7 @@
 
   // dt is elapsed time in 60 fps frames, so motion speed is independent of refresh rate.
   function step(now, dt) {
-    const ease = (k) => 1 - Math.pow(1 - k, dt);
     for (const n of nodes) {
-      if (formation && n.tx !== undefined) {
-        n.x += (n.tx - n.x) * ease(0.08);
-        n.y += (n.ty - n.y) * ease(0.08);
-        continue;
-      }
       if (cursor) {
         const dx = n.x - cursor.x;
         const dy = n.y - cursor.y;
@@ -311,26 +299,10 @@
       if (n.y > height) [n.y, n.vy] = [height, -Math.abs(n.vy)];
     }
 
-    if (formation && now > formation.until) {
-      for (const n of nodes) {
-        if (n.tx === undefined) continue;
-        delete n.tx;
-        delete n.ty;
-        const a = Math.random() * Math.PI * 2;
-        n.vx = Math.cos(a) * 1.2;
-        n.vy = Math.sin(a) * 1.2;
-        if (n.borrowed) n.fading = now;
-      }
-      formation = null;
-      setTimeout(() => canvas.classList.remove("is-raised"), 1200);
-    }
-    linkDist += ((formation ? shapeLinkDist : LINK_DIST) - linkDist) * ease(0.08);
-
     for (const h of hubs) {
       h.x = h.ax + Math.sin(now * 0.0004 + h.phase) * 6;
       h.y = h.ay + Math.cos(now * 0.0005 + h.phase) * 6;
     }
-    nodes = nodes.filter((n) => !n.fading || now - n.fading < 1500);
     trail = trail.filter((p) => now - p.t < 600);
   }
 
@@ -390,20 +362,18 @@
         const d2 = dx * dx + dy * dy;
         if (d2 >= L2) continue;
         batchLine(a.x, a.y, b.x, b.y, GOLD, 0.35 * (1 - Math.sqrt(d2) / linkDist));
-        if (a.group && b.group && a.group !== b.group && !(a.flashed && b.flashed) && !formation) {
+        if (a.group && b.group && a.group !== b.group && !(a.flashed && b.flashed)) {
           a.flashed = b.flashed = true;
           flashes.push({ a, b, t: now });
         }
       }
-      if (cursor && !formation) {
+      if (cursor) {
         const d = Math.hypot(a.x - cursor.x, a.y - cursor.y);
         if (d < CURSOR_DIST) batchLine(a.x, a.y, cursor.x, cursor.y, CREAM, 0.4 * (1 - d / CURSOR_DIST));
       }
-      if (!formation) {
-        for (const h of hubs) {
-          const d = Math.hypot(a.x - h.x, a.y - h.y);
-          if (d < HUB_LINK_DIST) batchLine(a.x, a.y, h.x, h.y, GOLD, 0.2 * (1 - d / HUB_LINK_DIST));
-        }
+      for (const h of hubs) {
+        const d = Math.hypot(a.x - h.x, a.y - h.y);
+        if (d < HUB_LINK_DIST) batchLine(a.x, a.y, h.x, h.y, GOLD, 0.2 * (1 - d / HUB_LINK_DIST));
       }
     }
     flushLines();
@@ -443,9 +413,7 @@
       // Added nodes glow for a couple of seconds.
       const glow = n.born ? Math.max(0, 1 - (now - n.born) / 2500) : 0;
       if (glow > 0) dot(n.x, n.y, n.r + 6 * glow, `rgba(${VERMILION}, ${(0.25 * glow).toFixed(3)})`);
-      ctx.globalAlpha = n.fading ? Math.max(0, 1 - (now - n.fading) / 1500) : 1;
       dot(n.x, n.y, n.r, n.color);
-      ctx.globalAlpha = 1;
     }
 
     ctx.font = "600 12px 'Source Sans 3', sans-serif";
@@ -533,10 +501,6 @@
       return;
     }
     quality = 2;
-    formation = null;
-    canvas.classList.remove("is-raised");
-    nodes.forEach((n) => delete n.tx);
-    nodes = nodes.filter((n) => !n.borrowed);
     cursor = null;
     trail = [];
     stop();
@@ -563,7 +527,7 @@
     windowStart = windowFrames = 0;
   }
 
-  /* Name writing and formation ------------------------------------------------*/
+  /* Name writing --------------------------------------------------------------*/
 
   function renderName(size) {
     const font = `700 ${size}px "Noto Serif Bengali", serif`;
@@ -594,56 +558,16 @@
       c.fillText(NAME, size * 0.2, h / 2);
       writings.push({ img: off, w, h, x: clamp(x - w / 2, 8, width - w - 8), y: clamp(y - h / 2, 8, height - h - 8), t: performance.now() });
       writings = writings.slice(-3);
+      // When the graph is still (reduced quality), animate just the writing.
+      if (!frame) requestAnimationFrame(writeLoop);
     });
   }
 
-  function formName() {
-    const reg = region();
-    const size = Math.min((width - reg.left) * 0.3, height * 0.6, 320);
-    renderName(size).then((font) => {
-      const off = document.createElement("canvas");
-      off.width = Math.ceil(width);
-      off.height = Math.ceil(height);
-      const c = off.getContext("2d");
-      c.font = font;
-      c.textAlign = "center";
-      c.textBaseline = "middle";
-      c.fillStyle = "#fff";
-      c.fillText(NAME, (reg.left + width) / 2, (reg.top + height) / 2);
-      const data = c.getImageData(0, 0, off.width, off.height).data;
-      const sample = (gap) => {
-        const pts = [];
-        for (let y = 0; y < off.height; y += gap) {
-          for (let x = 0; x < off.width; x += gap) {
-            if (data[(y * off.width + x) * 4 + 3] > 128) pts.push([x, y]);
-          }
-        }
-        return pts;
-      };
-      if (!animated() || !isDark()) return; // quality dropped or theme changed meanwhile
-      // An even grid over the letters reads far better than a random subset,
-      // so widen the grid until there are about as many points as the budget.
-      const budget = Math.max(nodes.length, SHAPE_NODES);
-      let gap = 4;
-      let points = sample(gap);
-      while (points.length > budget && gap < 40) points = sample(++gap);
-
-      // Borrow extra nodes for the shape; they fade away after it breaks up.
-      while (nodes.length < points.length) {
-        const n = makeNode(Math.random() * width, Math.random() * height, 0);
-        n.borrowed = true;
-        nodes.push(n);
-      }
-      for (let i = points.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [points[i], points[j]] = [points[j], points[i]];
-      }
-      points.forEach((pt, i) => ([nodes[i].tx, nodes[i].ty] = pt));
-      shapeLinkDist = gap * 1.5;
-      formation = { until: performance.now() + 3500 };
-      // Lift the graph above the page while the name is shown.
-      canvas.classList.add("is-raised");
-    });
+  function writeLoop() {
+    if (frame || !isDark()) return;
+    draw(performance.now());
+    if (writings.length) requestAnimationFrame(writeLoop);
+    else draw(performance.now());
   }
 
   /* Events --------------------------------------------------------------------*/
@@ -678,15 +602,40 @@
     }
     // Keep the graph bounded: retire the oldest nodes first.
     if (nodes.length > maxNodes) nodes.splice(0, nodes.length - maxNodes);
-    clicks++;
-    if (clicks % EGG_EVERY === 0 && animated()) formName();
     if (!frame) draw(performance.now());
   });
 
+  // True when the point is over an actual character (not just inside a text block).
+  function overText(x, y) {
+    let range = null;
+    if (document.caretRangeFromPoint) range = document.caretRangeFromPoint(x, y);
+    else if (document.caretPositionFromPoint) {
+      const pos = document.caretPositionFromPoint(x, y);
+      if (pos) {
+        range = document.createRange();
+        range.setStart(pos.offsetNode, pos.offset);
+      }
+    }
+    if (!range || range.startContainer.nodeType !== Node.TEXT_NODE) return false;
+    const node = range.startContainer;
+    for (const k of [range.startOffset - 1, range.startOffset]) {
+      if (k < 0 || k >= node.length) continue;
+      const ch = document.createRange();
+      ch.setStart(node, k);
+      ch.setEnd(node, k + 1);
+      for (const b of ch.getClientRects()) {
+        if (x >= b.left - 2 && x <= b.right + 2 && y >= b.top && y <= b.bottom) return true;
+      }
+    }
+    return false;
+  }
+
+  // Double-clicking a word still selects it; double-clicking empty space writes the name.
   document.addEventListener("dblclick", (e) => {
-    if (!isDark() || !animated() || e.target.closest(INTERACTIVE)) return;
+    if (!isDark() || reducedMotion.matches || e.target.closest(`${INTERACTIVE}, img, .card`)) return;
+    if (overText(e.clientX, e.clientY)) return;
     const selection = window.getSelection && window.getSelection();
-    if (selection && !selection.isCollapsed) return; // double-click selected a word
+    if (selection) selection.removeAllRanges(); // the browser may have selected a nearby word
     writeName(e.clientX, e.clientY);
   });
 
@@ -713,7 +662,7 @@
     () => {
       const dy = window.scrollY - lastScroll;
       lastScroll = window.scrollY;
-      if (!isDark() || !animated() || formation) return;
+      if (!isDark() || !animated()) return;
       for (const n of nodes) {
         n.y -= dy * 0.3;
         if (n.y < 0) n.y += height;

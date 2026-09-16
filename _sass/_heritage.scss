@@ -500,11 +500,6 @@ canvas.alpona {
   }
 }
 
-// Lifted above the page while the nodes spell out the name.
-canvas.constellation.is-raised {
-  z-index: 1040;
-}
-
 html.graph-hover,
 html.graph-hover body {
   cursor: pointer;
