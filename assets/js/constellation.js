@@ -3,7 +3,7 @@
 //    and places; hover shows a label, click opens the page.
 //  - Clicking empty space adds nodes; when two added clusters meet, their link flashes.
 //  - The cursor leaves a fading ink trail and gently pushes nodes away.
-//  - Double-clicking empty space writes the Bengali name in ink.
+//  - Behind the text column the graph is faded, so it never competes with the content.
 //  - Hovering a project card pulses links from nearby nodes into the card.
 //  - Scrolling shifts the nodes slightly (parallax).
 // Runs only while the resolved theme is dark; animations are skipped under
@@ -22,11 +22,11 @@
   const HUB_LINK_DIST = 120; // plain nodes link to research nodes within this distance
   const SPAWN_COUNT = 4; // nodes added per click
   const AMBIENT_SPEED = 0.35; // faster nodes are damped back to this speed
+  const VEIL = 0.8; // share of the graph erased behind the text column
   const GOLD = "232, 163, 61";
   const CREAM = "245, 233, 212";
   const VERMILION = "224, 113, 75";
   const HUB_COLORS = { topic: "#e8a33d", paper: "#e0714b", place: "#f5e9d4" };
-  const NAME = (document.querySelector(".sidebar-name-native") || {}).textContent?.trim() || "আযুষ";
 
   // Elements whose clicks keep their usual behaviour.
   const INTERACTIVE =
@@ -45,7 +45,7 @@
   let group = 0;
   let flashes = [];
   let trail = [];
-  let writings = [];
+  let veil = null; // horizontal extent of the text column, where the graph is faded
   let hovered = null;
   let pinned = null;
   let activeCard = null;
@@ -270,7 +270,17 @@
         n.y = Math.min(n.y, height);
       });
     }
+    measureLayout();
+  }
+
+  // The text column moves with fonts, images and the sidebar, so this reruns on those.
+  function measureLayout() {
     layoutHubs();
+    const main = document.querySelector('[role="main"]');
+    if (main) {
+      const m = main.getBoundingClientRect();
+      veil = { left: m.left, right: m.right };
+    }
   }
 
   // dt is elapsed time in 60 fps frames, so motion speed is independent of refresh rate.
@@ -384,25 +394,6 @@
       line(a.x, a.y, b.x, b.y, lit ? GOLD : CREAM, lit ? 0.8 : 0.2, lit ? 1.6 : 1);
     }
 
-    // Pulses from nearby nodes into the hovered project card.
-    if (activeCard) {
-      const rect = activeCard.getBoundingClientRect();
-      const nearest = nodes
-        .map((n) => {
-          const px = clamp(n.x, rect.left, rect.right);
-          const py = clamp(n.y, rect.top, rect.bottom);
-          return { n, px, py, d: Math.hypot(n.x - px, n.y - py) };
-        })
-        .filter((o) => o.d > 0)
-        .sort((p, q) => p.d - q.d)
-        .slice(0, 7);
-      nearest.forEach((o, i) => {
-        line(o.n.x, o.n.y, o.px, o.py, GOLD, 0.5);
-        const t = animated() ? (now / 1100 + i * 0.15) % 1 : 0.5;
-        dot(o.n.x + (o.px - o.n.x) * t, o.n.y + (o.py - o.n.y) * t, 2.2, `rgb(${CREAM})`);
-      });
-    }
-
     flashes = flashes.filter((f) => now - f.t < 700);
     for (const f of flashes) {
       const k = 1 - (now - f.t) / 700;
@@ -441,25 +432,43 @@
       if (k > 0) line(trail[i - 1].x, trail[i - 1].y, trail[i].x, trail[i].y, GOLD, 0.8 * k, 0.6 + 2 * k);
     }
 
-    // The name, written left to right by a glowing pen nib, then faded out.
-    writings = writings.filter((w) => now - w.t < 3700);
-    for (const w of writings) {
-      const age = now - w.t;
-      const reveal = Math.min(1, age / 1400);
+    // Fade everything behind the text column (soft edges) so the content stays readable.
+    if (veil) {
+      const edge = 48;
+      const left = veil.left - edge;
+      const w = veil.right - veil.left + edge * 2;
+      const k = edge / w;
+      const fade = ctx.createLinearGradient(left, 0, left + w, 0);
+      fade.addColorStop(0, "rgba(0, 0, 0, 0)");
+      fade.addColorStop(k, `rgba(0, 0, 0, ${VEIL})`);
+      fade.addColorStop(1 - k, `rgba(0, 0, 0, ${VEIL})`);
+      fade.addColorStop(1, "rgba(0, 0, 0, 0)");
       ctx.save();
-      ctx.globalAlpha = age < 2800 ? 0.95 : Math.max(0, 1 - (age - 2800) / 900);
-      ctx.beginPath();
-      ctx.rect(w.x, w.y, w.w * reveal, w.h);
-      ctx.clip();
-      ctx.drawImage(w.img, w.x, w.y, w.w, w.h);
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.fillStyle = fade;
+      ctx.fillRect(left, 0, w, height);
       ctx.restore();
-      if (reveal < 1) {
-        const nx = w.x + w.w * reveal;
-        const ny = w.y + w.h / 2 + Math.sin(age / 70) * w.h * 0.2;
-        dot(nx, ny, 7, `rgba(${GOLD}, 0.3)`);
-        dot(nx, ny, 2.5, `rgb(${CREAM})`);
-      }
     }
+
+    // Pulses from nearby nodes into the hovered project card.
+    if (activeCard) {
+      const rect = activeCard.getBoundingClientRect();
+      const nearest = nodes
+        .map((n) => {
+          const px = clamp(n.x, rect.left, rect.right);
+          const py = clamp(n.y, rect.top, rect.bottom);
+          return { n, px, py, d: Math.hypot(n.x - px, n.y - py) };
+        })
+        .filter((o) => o.d > 0)
+        .sort((p, q) => p.d - q.d)
+        .slice(0, 7);
+      nearest.forEach((o, i) => {
+        line(o.n.x, o.n.y, o.px, o.py, GOLD, 0.5);
+        const t = animated() ? (now / 1100 + i * 0.15) % 1 : 0.5;
+        dot(o.n.x + (o.px - o.n.x) * t, o.n.y + (o.py - o.n.y) * t, 2.2, `rgb(${CREAM})`);
+      });
+    }
+
   }
 
   // Frames are paced to FRAME_MS. If most frames arrive far later than asked, the
@@ -527,49 +536,6 @@
     windowStart = windowFrames = 0;
   }
 
-  /* Name writing --------------------------------------------------------------*/
-
-  function renderName(size) {
-    const font = `700 ${size}px "Noto Serif Bengali", serif`;
-    return document.fonts.load(font, NAME).then(
-      () => font,
-      () => font,
-    );
-  }
-
-  function writeName(x, y) {
-    const size = clamp(width * 0.08, 40, 72);
-    renderName(size).then((font) => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const off = document.createElement("canvas");
-      const c = off.getContext("2d");
-      c.font = font;
-      const w = c.measureText(NAME).width + size * 0.4;
-      const h = size * 1.7;
-      off.width = Math.ceil(w * dpr);
-      off.height = Math.ceil(h * dpr);
-      c.scale(dpr, dpr);
-      c.font = font;
-      c.textBaseline = "middle";
-      const grad = c.createLinearGradient(0, 0, w, 0);
-      grad.addColorStop(0, "#e8a33d");
-      grad.addColorStop(1, "#e0714b");
-      c.fillStyle = grad;
-      c.fillText(NAME, size * 0.2, h / 2);
-      writings.push({ img: off, w, h, x: clamp(x - w / 2, 8, width - w - 8), y: clamp(y - h / 2, 8, height - h - 8), t: performance.now() });
-      writings = writings.slice(-3);
-      // When the graph is still (reduced quality), animate just the writing.
-      if (!frame) requestAnimationFrame(writeLoop);
-    });
-  }
-
-  function writeLoop() {
-    if (frame || !isDark()) return;
-    draw(performance.now());
-    if (writings.length) requestAnimationFrame(writeLoop);
-    else draw(performance.now());
-  }
-
   /* Events --------------------------------------------------------------------*/
 
   document.addEventListener("click", (e) => {
@@ -603,40 +569,6 @@
     // Keep the graph bounded: retire the oldest nodes first.
     if (nodes.length > maxNodes) nodes.splice(0, nodes.length - maxNodes);
     if (!frame) draw(performance.now());
-  });
-
-  // True when the point is over an actual character (not just inside a text block).
-  function overText(x, y) {
-    let range = null;
-    if (document.caretRangeFromPoint) range = document.caretRangeFromPoint(x, y);
-    else if (document.caretPositionFromPoint) {
-      const pos = document.caretPositionFromPoint(x, y);
-      if (pos) {
-        range = document.createRange();
-        range.setStart(pos.offsetNode, pos.offset);
-      }
-    }
-    if (!range || range.startContainer.nodeType !== Node.TEXT_NODE) return false;
-    const node = range.startContainer;
-    for (const k of [range.startOffset - 1, range.startOffset]) {
-      if (k < 0 || k >= node.length) continue;
-      const ch = document.createRange();
-      ch.setStart(node, k);
-      ch.setEnd(node, k + 1);
-      for (const b of ch.getClientRects()) {
-        if (x >= b.left - 2 && x <= b.right + 2 && y >= b.top && y <= b.bottom) return true;
-      }
-    }
-    return false;
-  }
-
-  // Double-clicking a word still selects it; double-clicking empty space writes the name.
-  document.addEventListener("dblclick", (e) => {
-    if (!isDark() || reducedMotion.matches || e.target.closest(`${INTERACTIVE}, img, .card`)) return;
-    if (overText(e.clientX, e.clientY)) return;
-    const selection = window.getSelection && window.getSelection();
-    if (selection) selection.removeAllRanges(); // the browser may have selected a nearby word
-    writeName(e.clientX, e.clientY);
   });
 
   window.addEventListener("pointermove", (e) => {
@@ -690,11 +622,12 @@
     resize();
     if (!frame && isDark()) draw(performance.now());
   });
-  // Fonts and images shift the content column, so lay the hubs out again once loaded.
-  window.addEventListener("load", () => {
-    layoutHubs();
+  const relayout = () => {
+    measureLayout();
     if (!frame && isDark()) draw(performance.now());
-  });
+  };
+  window.addEventListener("load", relayout);
+  document.addEventListener("sidebar-toggled", relayout);
   document.addEventListener("visibilitychange", start);
   reducedMotion.addEventListener("change", start);
   new MutationObserver(start).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });

@@ -1,3 +1,10 @@
+<!-- Restore the collapsed sidebar before the page paints (desktop only; see _sass/_heritage.scss) -->
+<script>
+  try {
+    if (localStorage.getItem("sidebar-collapsed") === "1") document.documentElement.classList.add("sidebar-collapsed");
+  } catch (e) {}
+</script>
+
 <!-- Interactive backgrounds: research graph in dark mode, alpona in light mode -->
 <canvas class="constellation" aria-hidden="true"></canvas>
 <canvas class="alpona" aria-hidden="true"></canvas>
@@ -11,6 +18,10 @@
 <script defer src="{{ '/assets/js/alpona.js' | relative_url | bust_file_cache }}"></script>
 
 <header class="site-sidebar" role="banner">
+  <!-- Collapse to a slim rail (desktop only) -->
+  <button type="button" class="sidebar-toggle" aria-expanded="true" aria-label="Collapse sidebar" title="Collapse sidebar">
+    <i class="fa-solid fa-angles-left" aria-hidden="true"></i>
+  </button>
   <div class="sidebar-inner">
     <div class="sidebar-top">
       <a class="sidebar-identity" href="{{ '/' | relative_url }}">
@@ -109,3 +120,30 @@
     </div>
   </div>
 </header>
+
+<script>
+  (function () {
+    const root = document.documentElement;
+    const button = document.querySelector(".sidebar-toggle");
+    const sync = () => {
+      const label = root.classList.contains("sidebar-collapsed") ? "Expand sidebar" : "Collapse sidebar";
+      button.setAttribute("aria-expanded", String(!root.classList.contains("sidebar-collapsed")));
+      button.setAttribute("aria-label", label);
+      button.title = label;
+    };
+    sync();
+    button.addEventListener("click", () => {
+      // Animate only on toggle, not when a page loads already collapsed.
+      root.classList.add("sidebar-animating");
+      const collapsed = root.classList.toggle("sidebar-collapsed");
+      try {
+        localStorage.setItem("sidebar-collapsed", collapsed ? "1" : "0");
+      } catch (e) {}
+      sync();
+      setTimeout(() => {
+        root.classList.remove("sidebar-animating");
+        document.dispatchEvent(new Event("sidebar-toggled"));
+      }, 260);
+    });
+  })();
+</script>

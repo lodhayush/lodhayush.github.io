@@ -222,12 +222,14 @@
     if (!frame) loop();
   });
 
-  window.addEventListener("resize", () => {
+  const rebuild = () => {
     build();
     mandalas.forEach((m) => delete m.start);
     flowers = [];
     if (isLight()) loop();
-  });
+  };
+  window.addEventListener("resize", rebuild);
+  document.addEventListener("sidebar-toggled", rebuild);
   reducedMotion.addEventListener("change", start);
   new MutationObserver(start).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
