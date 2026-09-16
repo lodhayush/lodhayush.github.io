@@ -14,6 +14,7 @@
   const FLOWER_MS = 900; // time for a flower to draw itself
   const MAX_FLOWERS = 40;
   const FRAME_MS = [33, 50]; // frame interval at full and reduced quality
+  const SPEED = 1.8; // overall pace of turning, breathing and shimmer
   const VEIL = 0.4; // share of the pattern erased behind the text column
   const VERMILION = "185, 58, 20";
   const SAFFRON = "200, 130, 30";
@@ -203,7 +204,7 @@
 
   function render(now) {
     ctx.clearRect(0, 0, width, height);
-    const t = moving() ? now / 1000 : 0;
+    const t = moving() ? (now / 1000) * SPEED : 0;
     let revealing = false;
     for (const m of mandalas) {
       const f = m.start === undefined ? 1 : (now - m.start) / MANDALA_MS;
