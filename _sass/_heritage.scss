@@ -279,6 +279,15 @@ html[data-theme="dark"] footer.sticky-bottom::before {
   }
 }
 
+.site-sidebar .nav-icon {
+  width: 1.25rem;
+  margin-right: 0.6rem;
+  text-align: center;
+  font-size: 0.95rem;
+  color: inherit;
+  opacity: 0.85;
+}
+
 .site-sidebar .sidebar-nav .nav-item.active > .nav-link {
   color: $cream;
   font-weight: 600;
@@ -403,10 +412,6 @@ body.is-about .sidebar-avatar {
 }
 
 @media (min-width: $desktop) {
-  body.has-sidebar {
-    padding-left: $sidebar-width;
-  }
-
   .site-sidebar {
     position: fixed;
     top: 0;
@@ -515,13 +520,28 @@ body.is-about .sidebar-avatar {
     }
   }
 
-  /* Collapsed: a slim rail with the photo, the Bengali name and the theme toggle */
+  /* Collapsed by default: a slim rail with the photo, page icons and theme toggle.
+     Expanded (html.sidebar-expanded): the full sidebar opens over the page. */
 
-  html.sidebar-collapsed {
-    body.has-sidebar {
-      padding-left: $rail-width;
-    }
+  body.has-sidebar {
+    padding-left: $rail-width;
+  }
 
+  .site-sidebar {
+    transition:
+      width 0.25s ease,
+      box-shadow 0.25s ease;
+  }
+
+  html.sidebar-expanded .site-sidebar {
+    box-shadow: 12px 0 40px rgba(0, 0, 0, 0.35);
+  }
+
+  html.sidebar-expanded .site-sidebar .sidebar-toggle i {
+    transform: rotate(180deg);
+  }
+
+  html:not(.sidebar-expanded) {
     .site-sidebar {
       width: $rail-width;
       overflow-x: hidden;
@@ -545,34 +565,35 @@ body.is-about .sidebar-avatar {
 
     .sidebar-name,
     .sidebar-tagline,
-    .sidebar-collapse nav,
     .sidebar-location,
-    .sidebar-social {
+    .sidebar-social,
+    .nav-label {
       display: none;
+    }
+
+    .sidebar-nav {
+      margin-top: 1.25rem;
+    }
+
+    .site-sidebar .sidebar-nav .nav-link {
+      display: flex;
+      justify-content: center;
+      padding: 0.6rem 0;
+    }
+
+    .site-sidebar .nav-icon {
+      width: auto;
+      margin: 0;
+      font-size: 1.1rem;
     }
 
     .sidebar-bottom {
       display: flex;
       justify-content: center;
-      border-top: 0;
     }
 
     .site-sidebar .sidebar-toggle {
       right: calc(50% - 1rem);
-
-      i {
-        transform: rotate(180deg);
-      }
-    }
-  }
-
-  html.sidebar-animating {
-    body.has-sidebar {
-      transition: padding-left 0.25s ease;
-    }
-
-    .site-sidebar {
-      transition: width 0.25s ease;
     }
   }
 }

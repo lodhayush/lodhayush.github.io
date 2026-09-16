@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Projects
+nav_icon: fa-solid fa-diagram-project # sidebar icon (Font Awesome)
 permalink: /projects/
 description: Selected research projects in handwriting recognition and document understanding.
 nav: true

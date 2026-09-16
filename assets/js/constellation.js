@@ -273,7 +273,7 @@
     measureLayout();
   }
 
-  // The text column moves with fonts, images and the sidebar, so this reruns on those.
+  // Fonts and images can shift the text column, so this reruns once the page has loaded.
   function measureLayout() {
     layoutHubs();
     const main = document.querySelector('[role="main"]');
@@ -622,12 +622,10 @@
     resize();
     if (!frame && isDark()) draw(performance.now());
   });
-  const relayout = () => {
+  window.addEventListener("load", () => {
     measureLayout();
     if (!frame && isDark()) draw(performance.now());
-  };
-  window.addEventListener("load", relayout);
-  document.addEventListener("sidebar-toggled", relayout);
+  });
   document.addEventListener("visibilitychange", start);
   reducedMotion.addEventListener("change", start);
   new MutationObserver(start).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });

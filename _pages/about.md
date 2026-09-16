@@ -1,6 +1,7 @@
 ---
 layout: about
 title: About
+nav_icon: fa-solid fa-user # sidebar icon (Font Awesome)
 permalink: /
 subtitle: >
   Master's Student · <a href="https://nitdelhi.ac.in/">NIT Delhi</a> ·

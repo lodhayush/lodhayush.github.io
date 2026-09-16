@@ -2,6 +2,7 @@
 layout: page
 permalink: /publications/
 title: Publications
+nav_icon: fa-solid fa-book-open # sidebar icon (Font Awesome)
 description: >
   Below is a list of my research publications. My work focuses on handwriting
   recognition, document understanding, and multimodal learning, in collaboration

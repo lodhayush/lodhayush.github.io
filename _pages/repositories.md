@@ -2,6 +2,7 @@
 layout: page
 permalink: /repositories/
 title: Repositories
+nav_icon: fa-solid fa-code-branch # sidebar icon (Font Awesome)
 description: Open-source code from my research projects.
 nav: true
 nav_order: 4

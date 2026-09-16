@@ -2,6 +2,7 @@
 layout: cv
 permalink: /cv/
 title: CV
+nav_icon: fa-solid fa-file-lines # sidebar icon (Font Awesome)
 cv_format: rendercv
 cv_pdf: assets/pdf/Curriculum_Vitae.pdf # shows the PDF download icon next to the page title
 description: >
