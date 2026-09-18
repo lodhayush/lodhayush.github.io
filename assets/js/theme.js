@@ -291,7 +291,7 @@ let determineThemeSetting = () => {
 // The "system" (Auto) setting follows the visitor's local time of day: light from
 // DAY_START_HOUR until NIGHT_START_HOUR, dark otherwise.
 const DAY_START_HOUR = 7;
-const NIGHT_START_HOUR = 19;
+const NIGHT_START_HOUR = 18;
 
 let isNightTime = (date = new Date()) => {
   const hour = date.getHours();
