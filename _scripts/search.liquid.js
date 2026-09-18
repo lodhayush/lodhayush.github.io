@@ -330,8 +330,8 @@ ninja.data = [
     },
     {
       id: 'system-theme',
-      title: 'Use system default theme',
-      description: 'Change the theme of the site to System Default',
+      title: 'Use automatic theme',
+      description: 'Light by day, dark at night (local time)',
       section: 'Theme',
       handler: () => {
         setThemeSetting("system");

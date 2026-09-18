@@ -4,16 +4,8 @@ permalink: /assets/js/giscus-setup.js
 
 function determineGiscusTheme() {
   {% if site.enable_darkmode %}
-    let theme =
-      localStorage.getItem("theme") ||
-      document.documentElement.getAttribute("data-theme") ||
-      "system";
-
-    if (theme === "dark") return "{{ site.giscus.dark_theme }}";
-    if (theme === "light") return "{{ site.giscus.light_theme }}";
-
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    return prefersDark ? "{{ site.giscus.dark_theme }}" : "{{ site.giscus.light_theme }}";
+    // determineComputedTheme (theme.js) resolves Auto by the time of day.
+    return determineComputedTheme() === "dark" ? "{{ site.giscus.dark_theme }}" : "{{ site.giscus.light_theme }}";
   {% else %}
     return "{{ site.giscus.light_theme }}";
   {% endif %}

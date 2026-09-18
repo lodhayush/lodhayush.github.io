@@ -17,8 +17,21 @@ let setThemeSetting = (themeSetting) => {
   localStorage.setItem("theme", themeSetting);
 
   document.documentElement.setAttribute("data-theme-setting", themeSetting);
+  setToggleTitle(themeSetting);
 
   applyTheme();
+};
+
+// Describe the current setting on the theme toggle button.
+let setToggleTitle = (themeSetting) => {
+  const toggle = document.getElementById("light-toggle");
+  if (!toggle) return;
+  const titles = {
+    system: "Theme: Auto, light by day and dark at night",
+    light: "Theme: Light",
+    dark: "Theme: Dark",
+  };
+  toggle.title = titles[themeSetting];
 };
 
 // Apply the computed dark or light theme to the website.
@@ -275,20 +288,52 @@ let determineThemeSetting = () => {
   return themeSetting;
 };
 
+// The "system" (Auto) setting follows the visitor's local time of day: light from
+// DAY_START_HOUR until NIGHT_START_HOUR, dark otherwise.
+const DAY_START_HOUR = 7;
+const NIGHT_START_HOUR = 19;
+
+let isNightTime = (date = new Date()) => {
+  const hour = date.getHours();
+  return hour < DAY_START_HOUR || hour >= NIGHT_START_HOUR;
+};
+
+// Milliseconds until the next switch between day and night.
+let msUntilNextSwitch = (now = new Date()) => {
+  const next = new Date(now);
+  next.setMinutes(0, 0, 0);
+  const hour = now.getHours();
+  if (hour < DAY_START_HOUR) {
+    next.setHours(DAY_START_HOUR);
+  } else if (hour < NIGHT_START_HOUR) {
+    next.setHours(NIGHT_START_HOUR);
+  } else {
+    next.setDate(next.getDate() + 1);
+    next.setHours(DAY_START_HOUR);
+  }
+  return next - now;
+};
+
 // Determine the computed theme, which can be "dark" or "light". If the theme setting is
-// "system", the computed theme is determined based on the user's system preference.
+// "system" (Auto), the computed theme is determined by the local time of day.
 let determineComputedTheme = () => {
   let themeSetting = determineThemeSetting();
   if (themeSetting == "system") {
-    const userPref = window.matchMedia;
-    if (userPref && userPref("(prefers-color-scheme: dark)").matches) {
-      return "dark";
-    } else {
-      return "light";
-    }
+    return isNightTime() ? "dark" : "light";
   } else {
     return themeSetting;
   }
+};
+
+// Re-apply Auto at the next day/night switch, and whenever the tab becomes visible again
+// (timers are paused or delayed in background tabs and while the device sleeps).
+let autoThemeTimer;
+let scheduleAutoTheme = () => {
+  clearTimeout(autoThemeTimer);
+  autoThemeTimer = setTimeout(() => {
+    if (determineThemeSetting() == "system") applyTheme();
+    scheduleAutoTheme();
+  }, msUntilNextSwitch() + 1000);
 };
 
 let initTheme = () => {
@@ -299,15 +344,20 @@ let initTheme = () => {
   // Add event listener to the theme toggle button.
   document.addEventListener("DOMContentLoaded", function () {
     const mode_toggle = document.getElementById("light-toggle");
+    setToggleTitle(determineThemeSetting());
 
     mode_toggle.addEventListener("click", function () {
       toggleThemeSetting();
     });
   });
 
-  // Add event listener to the system theme preference change.
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", ({ matches }) => {
-    applyTheme();
+  // Keep Auto in step with the clock.
+  scheduleAutoTheme();
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) return;
+    const theme = determineComputedTheme();
+    if (theme != document.documentElement.getAttribute("data-theme")) applyTheme();
+    scheduleAutoTheme();
   });
 };
 
