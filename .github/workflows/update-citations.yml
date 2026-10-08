@@ -39,7 +39,8 @@ jobs:
       - name: Install dependencies
         run: pip install requests pyyaml
 
-      # If Scholar blocks the runner (HTTP 403/CAPTCHA), the script exits 75:
+      # If Scholar blocks the runner (HTTP 403/CAPTCHA) the script refreshes counts from
+      # OpenAlex/Crossref itself. It exits 75 only when those give nothing either:
       # treat that as a no-op success so scheduled runs stay green.
       - name: Sync with Google Scholar
         run: |
@@ -48,7 +49,7 @@ jobs:
           status=$?
           set -e
           if [ "$status" -eq 75 ]; then
-            echo "⚠️ Google Scholar blocked this run (HTTP 403/CAPTCHA). No files were changed." >> "$GITHUB_STEP_SUMMARY"
+            echo "⚠️ Google Scholar blocked this run and OpenAlex/Crossref gave nothing. No files were changed." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           exit "$status"

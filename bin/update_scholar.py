@@ -15,8 +15,11 @@ Keeps the site in sync with the Google Scholar profile named by
 
 Scholar has no API and no change notifications, so this reads the public
 profile HTML and CI runs it on a schedule. When Scholar blocks the request
-(CAPTCHA / HTTP 429, common for datacenter IPs) the script exits non-zero
-WITHOUT writing anything, so the last good counts stay on the site.
+(CAPTCHA / HTTP 403 / 429, common for datacenter IPs) the script falls back to
+OpenAlex and Crossref: counts of papers already in citations.yml are refreshed
+(never lowered below the last Scholar figure) and nothing else is touched. If
+those APIs give nothing either, it exits 75 WITHOUT writing anything, so the
+last good counts stay on the site.
 
 Usage:
     python bin/update_scholar.py
@@ -26,6 +29,7 @@ Requires: requests, pyyaml
 
 import difflib
 import html
+import os
 import random
 import re
 import sys
@@ -221,6 +225,7 @@ def parse_bib(text: str) -> list[dict]:
             "key": m.group(2),
             "title": bib_field(m.group(3), "title"),
             "doi": bib_field(m.group(3), "doi"),
+            "arxiv": bib_field(m.group(3), "arxiv") or bib_field(m.group(3), "eprint"),
             "google_scholar_id": bib_field(m.group(3), "google_scholar_id"),
         }
         for m in ENTRY_RE.finditer(text)
@@ -310,6 +315,146 @@ def build_entry(details: dict, pub_id: str, fallback_year: str, taken: set[str])
     return key, f"@{entry_type}{{{key},\n{body}}}\n"
 
 
+# ── OpenAlex / Crossref fallback ─────────────────────────────────────────────
+
+
+def get_json(url: str, params: dict | None = None):
+    """GET JSON with retries. None on failure or 404 (source lacks the paper)."""
+    for attempt in range(1, RETRIES + 1):
+        try:
+            resp = requests.get(url, params=params, headers=CROSSREF_HEADERS, timeout=TIMEOUT)
+            if resp.status_code == 404:
+                return None
+            if resp.status_code == 429 or resp.status_code >= 500:
+                raise requests.HTTPError(f"HTTP {resp.status_code}")
+            resp.raise_for_status()
+            return resp.json()
+        except Exception as e:
+            if attempt == RETRIES:
+                print(f"      ! giving up on {url}: {e}")
+                return None
+            time.sleep(2**attempt)
+    return None
+
+
+def openalex_count(entry: dict) -> int | None:
+    """OpenAlex citations by DOI, then arXiv DOI, then a title search that must match closely."""
+    urls = []
+    if entry["doi"]:
+        urls.append(f"https://api.openalex.org/works/doi:{entry['doi']}")
+    if entry["arxiv"]:
+        urls.append(f"https://api.openalex.org/works/doi:10.48550/arXiv.{entry['arxiv']}")
+    counts = []
+    for url in urls:
+        data = get_json(url, {"select": "id,cited_by_count"})
+        if data and data.get("cited_by_count") is not None:
+            counts.append(int(data["cited_by_count"]))
+    if counts:
+        return max(counts)
+    if entry["title"]:
+        data = get_json(
+            "https://api.openalex.org/works",
+            {"filter": f"title.search:{entry['title']}", "select": "id,title,cited_by_count", "per_page": 3},
+        )
+        wanted = normalize(entry["title"])
+        for result in (data or {}).get("results") or []:
+            have = normalize(result.get("title") or "")
+            if result.get("cited_by_count") is not None and difflib.SequenceMatcher(None, have, wanted).ratio() >= 0.9:
+                return int(result["cited_by_count"])
+    return None
+
+
+def crossref_count(entry: dict) -> int | None:
+    if not entry["doi"]:
+        return None
+    data = get_json(f"https://api.crossref.org/works/{entry['doi']}")
+    count = ((data or {}).get("message") or {}).get("is-referenced-by-count")
+    return int(count) if count is not None else None
+
+
+def h_index(counts: list[int]) -> int:
+    ranked = sorted(counts, reverse=True)
+    return sum(1 for rank, c in enumerate(ranked, 1) if c >= rank)
+
+
+def note_summary(text: str) -> None:
+    """Add a line to the GitHub Actions run summary when running in CI."""
+    path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if path:
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(text + "\n")
+
+
+def refresh_from_open_apis(user: str) -> bool:
+    """Update counts for papers already in citations.yml from OpenAlex and Crossref.
+
+    Returns False if no source answered for any paper (nothing is written). A
+    count is only ever raised: Scholar usually reports more than these indexes.
+    """
+    if not OUTPUT_PATH.exists() or not BIB_PATH.exists():
+        return False
+    existing = yaml.safe_load(OUTPUT_PATH.read_text(encoding="utf-8")) or {}
+    papers = existing.get("papers") or {}
+    entries = parse_bib(BIB_PATH.read_text(encoding="utf-8"))
+    by_scholar_id = {e["google_scholar_id"]: e for e in entries if e["google_scholar_id"]}
+
+    print("↩️  Falling back to OpenAlex + Crossref for papers already tracked\n")
+    updated, answered = {}, 0
+    for key, paper in papers.items():
+        entry = by_scholar_id.get(key.split(":", 1)[-1])
+        if not entry:
+            print(f"  • {paper['title'][:60]} — no matching papers.bib entry; keeping {paper['citations']}")
+            updated[key] = dict(paper)
+            continue
+        found = {}
+        for name, lookup in (("openalex", openalex_count), ("crossref", crossref_count)):
+            try:
+                value = lookup(entry)
+            except Exception as e:
+                print(f"      ! {name} errored: {e}")
+                value = None
+            if value is not None:
+                found[name] = value
+            time.sleep(0.3)
+        old = int(paper["citations"])
+        if found:
+            answered += 1
+        best = max([old, *found.values()])
+        print(f"  • {entry['key']}: stored {old}, sources {found or 'none'} → {best}")
+        updated[key] = {**paper, "citations": best}
+
+    if not answered:
+        print("\n❌ OpenAlex and Crossref did not answer for any paper.")
+        return False
+
+    if updated == papers:
+        print(f"\nℹ️  Counts unchanged; leaving {OUTPUT_PATH} alone.")
+        note_summary("ℹ️ Google Scholar blocked this run; OpenAlex/Crossref counts were unchanged.")
+        return True
+
+    counts = [int(p["citations"]) for p in updated.values()]
+    meta = {
+        **(existing.get("metadata") or {}),
+        "last_updated": datetime.now().strftime("%Y-%m-%d"),
+        "total_citations": sum(counts),
+        "h_index": h_index(counts),
+        "i10_index": sum(1 for c in counts if c >= 10),
+    }
+    header = (
+        "# Auto-generated by bin/update_scholar.py (.github/workflows/update-citations.yml).\n"
+        "# Source: Google Scholar profile; OpenAlex/Crossref when Scholar blocks the run.\n"
+        '# Keyed "<scholar_userid>:<google_scholar_id>" as read by _layouts/bib.liquid.\n'
+        "# Do not edit by hand.\n"
+    )
+    OUTPUT_PATH.write_text(
+        header + yaml.dump({"metadata": meta, "papers": updated}, width=1000, sort_keys=True, allow_unicode=True),
+        encoding="utf-8",
+    )
+    print(f"\n✅ Updated {OUTPUT_PATH} from OpenAlex/Crossref")
+    note_summary("⚠️ Google Scholar blocked this run; citation counts were refreshed from OpenAlex/Crossref.")
+    return True
+
+
 # ── main ─────────────────────────────────────────────────────────────────────
 
 
@@ -320,7 +465,10 @@ def main() -> None:
     try:
         scholar_papers, stats = fetch_profile(user)
     except ScholarBlocked as e:
-        print(f"❌ Google Scholar did not serve the profile ({e}). Nothing was changed.")
+        print(f"⚠️  Google Scholar did not serve the profile ({e}).")
+        if refresh_from_open_apis(user):
+            return
+        print("Nothing was changed.")
         sys.exit(SCHOLAR_BLOCKED_EXIT_CODE)
     if not scholar_papers:
         print("❌ The profile page parsed to zero papers. Nothing was changed.")
