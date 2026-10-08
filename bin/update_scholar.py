@@ -53,6 +53,7 @@ SCHOLAR_HEADERS = {
 CROSSREF_HEADERS = {"User-Agent": "al-folio-scholar-sync/1.0 (mailto:ayushlodh26@gmail.com)"}
 TIMEOUT = 30
 RETRIES = 3
+SCHOLAR_BLOCKED_EXIT_CODE = 75
 
 # Venue name fragment → badge abbreviation for newly added papers.
 # Colours for these live in _data/venues.yml.
@@ -320,7 +321,7 @@ def main() -> None:
         scholar_papers, stats = fetch_profile(user)
     except ScholarBlocked as e:
         print(f"❌ Google Scholar did not serve the profile ({e}). Nothing was changed.")
-        sys.exit(1)
+        sys.exit(SCHOLAR_BLOCKED_EXIT_CODE)
     if not scholar_papers:
         print("❌ The profile page parsed to zero papers. Nothing was changed.")
         sys.exit(1)
