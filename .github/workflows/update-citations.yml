@@ -39,10 +39,19 @@ jobs:
       - name: Install dependencies
         run: pip install requests pyyaml
 
-      # Exits non-zero without writing anything if Scholar blocks the runner,
-      # so a red run means "Scholar refused", and the last good counts stay live.
+      # If Scholar blocks the runner (HTTP 403/CAPTCHA), the script exits 75:
+      # treat that as a no-op success so scheduled runs stay green.
       - name: Sync with Google Scholar
-        run: timeout 600 python bin/update_scholar.py
+        run: |
+          set +e
+          timeout 600 python bin/update_scholar.py
+          status=$?
+          set -e
+          if [ "$status" -eq 75 ]; then
+            echo "⚠️ Google Scholar blocked this run (HTTP 403/CAPTCHA). No files were changed." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          exit "$status"
 
       - name: Commit, push, and redeploy if anything changed
         env:
