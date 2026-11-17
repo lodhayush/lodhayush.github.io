@@ -5,12 +5,12 @@
 metadata:
   h_index: 2
   i10_index: 0
-  last_updated: '2026-11-08'
+  last_updated: '2026-11-17'
   scholar_userid: 4tPZSLkAAAAJ
-  total_citations: 7
+  total_citations: 8
 papers:
   4tPZSLkAAAAJ:2osOgNQ5qMEC:
-    citations: 3
+    citations: 4
     title: 'NoTeS-Bank: Benchmarking Vision-Language Models on Unstructured Academic and Scientific Note-Taking'
     year: '2026'
   4tPZSLkAAAAJ:9yKSN-GCB0IC:
