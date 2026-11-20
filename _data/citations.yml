@@ -5,9 +5,9 @@
 metadata:
   h_index: 2
   i10_index: 0
-  last_updated: '2026-11-17'
+  last_updated: '2026-11-20'
   scholar_userid: 4tPZSLkAAAAJ
-  total_citations: 8
+  total_citations: 9
 papers:
   4tPZSLkAAAAJ:2osOgNQ5qMEC:
     citations: 4
@@ -22,6 +22,6 @@ papers:
     title: ICDAR 2025 Handwritten Notes Understanding Challenge
     year: '2025'
   4tPZSLkAAAAJ:u-x6o8ySG0sC:
-    citations: 2
+    citations: 3
     title: A Transformer Based Handwriting Recognition System Jointly Using Online and Offline Features
     year: '2025'
